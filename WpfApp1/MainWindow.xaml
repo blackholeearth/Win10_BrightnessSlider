@@ -1,0 +1,48 @@
+﻿<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="606" Width="802">
+    <TabControl TabStripPlacement="Left" HorizontalContentAlignment="Left" >
+        <TabItem HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+                 Header="Header 1">
+            <Grid Background="#FFE5E5E5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="61*"/>
+                    <ColumnDefinition Width="735*"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox HorizontalAlignment="Left" Margin="100,126,0,0" VerticalAlignment="Top" Width="120" Grid.Column="1" Text="at tab1"/>
+
+            </Grid>
+        </TabItem>
+
+
+        <TabItem HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+             Header="TabItem">
+            
+            <Grid  Background="#FFDADAF0" Height="489" Width="370">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <DataGrid d:ItemsSource="{d:SampleData ItemCount=5}" Margin="5,5,5,5" Grid.Row="1"/>
+
+                <Button Name="bt1" Content="Button" HorizontalAlignment="Left" Margin="20,100,0,0" VerticalAlignment="Top" Click="bt1_Click"/>
+                <Button Name="bt2" Content="Button" HorizontalAlignment="Left" Margin="90,100,0,0" VerticalAlignment="Top"  />
+                <Button Name="bt3" Content="open New form" HorizontalAlignment="Left" Margin="160,100,0,0" VerticalAlignment="Top" Click="bt3_Click" />
+            </Grid>
+            
+        </TabItem>
+        
+        
+      
+    </TabControl>
+</Window>
