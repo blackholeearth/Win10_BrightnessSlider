@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApp1", "WpfApp1\WpfApp1.csproj", "{0FF37825-7AE7-477D-9F96-6EF8E77D9A12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "winforms-SDR-test", "winforms-SDR-test\winforms-SDR-test.csproj", "{BA2E5F4A-163B-4C52-A3BC-FE5732762303}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Win10_BrightnessSlider", "Win10_BrightnessSlider\Win10_BrightnessSlider.csproj", "{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0FF37825-7AE7-477D-9F96-6EF8E77D9A12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FF37825-7AE7-477D-9F96-6EF8E77D9A12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FF37825-7AE7-477D-9F96-6EF8E77D9A12}.Debug|x64.ActiveCfg = Debug|x64
+		{0FF37825-7AE7-477D-9F96-6EF8E77D9A12}.Debug|x64.Build.0 = Debug|x64
+		{0FF37825-7AE7-477D-9F96-6EF8E77D9A12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FF37825-7AE7-477D-9F96-6EF8E77D9A12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FF37825-7AE7-477D-9F96-6EF8E77D9A12}.Release|x64.ActiveCfg = Release|x64
+		{0FF37825-7AE7-477D-9F96-6EF8E77D9A12}.Release|x64.Build.0 = Release|x64
+		{BA2E5F4A-163B-4C52-A3BC-FE5732762303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA2E5F4A-163B-4C52-A3BC-FE5732762303}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA2E5F4A-163B-4C52-A3BC-FE5732762303}.Debug|x64.ActiveCfg = Debug|x64
+		{BA2E5F4A-163B-4C52-A3BC-FE5732762303}.Debug|x64.Build.0 = Debug|x64
+		{BA2E5F4A-163B-4C52-A3BC-FE5732762303}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA2E5F4A-163B-4C52-A3BC-FE5732762303}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA2E5F4A-163B-4C52-A3BC-FE5732762303}.Release|x64.ActiveCfg = Release|x64
+		{BA2E5F4A-163B-4C52-A3BC-FE5732762303}.Release|x64.Build.0 = Release|x64
+		{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}.Debug|x64.ActiveCfg = Debug|x64
+		{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}.Debug|x64.Build.0 = Debug|x64
+		{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}.Release|x64.ActiveCfg = Release|Any CPU
+		{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E12745DA-688C-4555-B46A-10488DE128C9}
+	EndGlobalSection
+EndGlobal
