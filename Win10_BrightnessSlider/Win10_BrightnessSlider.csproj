@@ -1,0 +1,99 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<UseWindowsForms>true</UseWindowsForms>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net472</TargetFramework>
+		<LangVersion>7.3</LangVersion>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Platforms>AnyCPU;x64</Platforms>
+	
+		<AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+	    <AppendRuntimeIdentifierToOutputPath>true</AppendRuntimeIdentifierToOutputPath>
+	    <ApplicationIcon>brightness.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<Optimize>false</Optimize>
+		<!-- <OutputPath>bin\Debug\</OutputPath> -->
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<!-- <OutputPath>bin\Release\</OutputPath> -->
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	  <DebugSymbols>true</DebugSymbols>
+	  <DebugType>full</DebugType>
+	  <Optimize>false</Optimize>
+	  <!-- <OutputPath>bin\Debug\</OutputPath> -->
+	  <DefineConstants>DEBUG;TRACE</DefineConstants>
+	  <ErrorReport>prompt</ErrorReport>
+	  <WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	  <DebugType>pdbonly</DebugType>
+	  <Optimize>true</Optimize>
+	  <!-- <OutputPath>bin\Release\</OutputPath> -->
+	  <DefineConstants>TRACE</DefineConstants>
+	  <ErrorReport>prompt</ErrorReport>
+	  <WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+	  <Compile Remove="Gui\_Form1 - backup_2025_01_23.cs" />
+	  <Compile Remove="Gui\_Form1 - backup_2025_01_23.Designer.cs" />
+	  <Compile Remove="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Remove="Gui\_Form1 - backup_2025_01_23.resx" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Costura32\uiohook.dll" />
+	  <None Remove="Costura64\uiohook.dll" />
+	  <None Remove="Properties\app.manifest" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="brightness.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Costura32\uiohook.dll" />
+	  <EmbeddedResource Include="Costura64\uiohook.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Costura.Fody" Version="4.0.0" />
+	  <PackageReference Include="LiteDB" Version="5.0.21" />
+	  <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+	  <PackageReference Include="MouseKeyHook" Version="5.7.1" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	  <PackageReference Include="SharpHook" Version="5.3.8" />
+	  <PackageReference Include="Tomlyn" Version="0.18.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="System.Management" />
+	  <Reference Include="WindowsBase" />
+	</ItemGroup>
+
+</Project>
+
