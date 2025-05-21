@@ -56,7 +56,8 @@ namespace hardwareMonitor_atTaskbar
 			this.Shown += (s1, e1) => { this.Hide(); };
 
 			_drawer = new TaskbarDrawer(); // Instantiate it
-			_drawer.onTaskbar_Paint += onTaskbar_Paint;
+			//_drawer.onTaskbar_Paint += onTaskbar_Paint;
+			_drawer.on_ChartImage_Requested += on_ChartImage_Requested;
 
 			//make Graph Start from End---
 			for (int i = 0; i < MaxHistoryPoints; i++)
@@ -93,6 +94,7 @@ namespace hardwareMonitor_atTaskbar
 
 			appNotifyIcon.ContextMenuStrip = trayContextMenuStrip;
 		}
+
 
 		private void Toggle_ShowHide()
 		{
@@ -294,7 +296,57 @@ namespace hardwareMonitor_atTaskbar
 			g_img_combined = Graphics.FromImage(img_combined);
 		}
 
-		private void onTaskbar_Paint(Graphics gTaskbar, Rectangle CliRect)
+		private void on_ChartImage_Requested(Rectangle CliRect)
+		{
+			if (img1 is null)
+				initBitmaps(CliRect);
+
+
+			//DRAW CPU
+			var rect1 = new Rectangle(0, 0, (MaxHistoryPoints + 2), CliRect.Height);
+			DrawGraphBar_onBitmap(g_img1, rect1, _cpuHistory, 100f, "CPU", "%", CurrentCpuUsage);
+
+			//DRAW DISK
+			var rect2 = new Rectangle(0, 0, (MaxHistoryPoints + 2), CliRect.Height);
+
+			float maxDisk = _diskHistory.Any() ? _diskHistory.Max() : 10f; // Use .Any() to check if empty
+			if (maxDisk < 1.0f) maxDisk = 1.0f;
+			DrawGraphBar_onBitmap(g_img2, rect2, _diskHistory, maxDisk, "DISK", "MB/s", CurrentDiskSpeedMBps);
+
+			//DRAW NET
+			var rect3 = new Rectangle(0, 0, (MaxHistoryPoints + 2), CliRect.Height);
+
+			float currentMaxNet = _networkHistory.Any() ? _networkHistory.Max() : 0f;
+			float scaleMaxNet;
+
+			// Tiered scaling for Network Graph's Y-axis
+			if (currentMaxNet < 50f) scaleMaxNet = 50f;
+			else if (currentMaxNet <= 250f) scaleMaxNet = 250f;
+			else if (currentMaxNet <= 500f) scaleMaxNet = 500f;
+			else if (currentMaxNet <= 1024f) scaleMaxNet = 1024f; // Max 1 MB/s effectively
+			else scaleMaxNet = currentMaxNet * 1.1f; // Auto-scale with 10% headroom if above 1024 KB/s
+
+			if (scaleMaxNet < 1.0f) scaleMaxNet = 1.0f; // Ensure a minimum if all values are tiny
+
+			DrawGraphBar_onBitmap(g_img3, rect3, _networkHistory, scaleMaxNet, "NET", "KB/s", CurrentNetworkSpeedKBps);
+
+			//to taskbar
+			g_img_combined.DrawImage(img1, 0, 0);
+			g_img_combined.DrawImage(img2, img1.Width * 1, 0);
+			g_img_combined.DrawImage(img3, img1.Width * 2, 0);
+
+			_drawer.LatestImg = img_combined;
+			////gTaskbar.DrawImage(img_combined, 0,0,img1.Width,img1.Height);
+			//gTaskbar.DrawImage(img_combined, CliRect.X, CliRect.Y, img_combined.Width, img_combined.Height);
+
+
+			//preview
+			picBox_taskbarPrev.Size = img_combined.Size;
+			picBox_taskbarPrev.Image = img_combined;
+		}
+
+
+		private void onTaskbar_Paint__dis(Graphics gTaskbar, Rectangle CliRect)
 		{
 			if(img1 is null)
 				initBitmaps(CliRect);
@@ -334,8 +386,8 @@ namespace hardwareMonitor_atTaskbar
 			g_img_combined.DrawImage(img3, img1.Width * 2, 0);
 
 			_drawer.LatestImg = img_combined;
-			//gTaskbar.DrawImage(img_combined, 0,0,img1.Width,img1.Height);
-			gTaskbar.DrawImage(img_combined, CliRect.X, CliRect.Y, img_combined.Width, img_combined.Height);
+			////gTaskbar.DrawImage(img_combined, 0,0,img1.Width,img1.Height);
+			//gTaskbar.DrawImage(img_combined, CliRect.X, CliRect.Y, img_combined.Width, img_combined.Height);
 
 
 			//preview
@@ -344,6 +396,7 @@ namespace hardwareMonitor_atTaskbar
 
 
 		}
+
 
 
 		//private void DrawGraphLine(Graphics g, Panel panel, Queue<float> history, Color lineColor, float maxValue, string unitLabel)

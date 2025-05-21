@@ -5,52 +5,10 @@ using System.Windows.Forms; // For Timer, not for drawing on taskbar
 
 public class TaskbarDrawer
 {
-	// --- hit test if taskbar is not covered by another window... so we can draw on it..
-	[DllImport("user32.dll")]
-	static extern IntPtr WindowFromPoint(POINTSTRUCT Point); // Using POINTSTRUCT from previous WINDOWPLACEMENT
-	[StructLayout(LayoutKind.Sequential)]
-	public struct POINTSTRUCT
-	{
-		public int X;
-		public int Y;
-	}
+	private System.Windows.Forms.Timer 
+		_drawChart_Timer,
+		_refreshTaskbar_Timer;
 
-
-
-
-	// --- Windows API P/Invoke Signatures ---
-	[DllImport("user32.dll", SetLastError = true)]
-	public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
-
-
-
-	[DllImport("user32.dll")]
-	static extern IntPtr GetDC(IntPtr hWnd);
-
-	[DllImport("user32.dll")]
-	static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
-
-
-	[DllImport("user32.dll")]
-	[return: MarshalAs(UnmanagedType.Bool)]
-	public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct RECT
-	{
-		public int Left;
-		public int Top;
-		public int Right;
-		public int Bottom;
-
-		public int Width => Right - Left;
-		public int Height => Bottom - Top;
-	}
-
-	private System.Windows.Forms.Timer _paintTimer;
 	private IntPtr _taskbarHandle;
 	private IntPtr _trayAreaHandle; // e.g., TrayNotifyWnd or ClockWindow
 
@@ -58,6 +16,19 @@ public class TaskbarDrawer
 
 	public TaskbarDrawer()
 	{
+		_drawChart_Timer = new System.Windows.Forms.Timer();
+		_drawChart_Timer.Interval = 1000;
+		_drawChart_Timer.Tick += _drawChart_Timer_Tick;
+		_drawChart_Timer.Start();
+
+
+		_refreshTaskbar_Timer = new System.Windows.Forms.Timer();
+		_refreshTaskbar_Timer.Interval = 100; // 350; 
+		_refreshTaskbar_Timer.Tick += _refreshTaskbar_Timer_Tick;
+		_refreshTaskbar_Timer.Start();
+
+
+
 		_taskbarHandle = FindWindow("Shell_TrayWnd", null);
 		if (_taskbarHandle == IntPtr.Zero)
 		{
@@ -70,9 +41,6 @@ public class TaskbarDrawer
 		if (trayNotifyWnd != IntPtr.Zero)
 		{
 			_trayAreaHandle = trayNotifyWnd;
-			// For the clock, you might look for "TrayClockWClass" as a child of TrayNotifyWnd or Shell_TrayWnd
-			// IntPtr clockWnd = FindWindowEx(trayNotifyWnd, IntPtr.Zero, "TrayClockWClass", null);
-			// if (clockWnd != IntPtr.Zero) _targetAreaHandle = clockWnd;
 		}
 		else
 		{
@@ -81,88 +49,23 @@ public class TaskbarDrawer
 		}
 
 
-		_paintTimer = new System.Windows.Forms.Timer();
-		_paintTimer.Interval = 500; // Repaint frequently
-		_paintTimer.Tick += PaintTimer_Tick;
-		_paintTimer.Start();
+		
 	}
 
 
 	/// <summary>
-	/// graphics g is taskbar area to Draw on.
+	/// rectangle is taskbar locaiton and size
 	/// </summary>
-	public Action<Graphics,Rectangle> onTaskbar_Paint;
+	public Action<Rectangle> on_ChartImage_Requested;
 
-
-	/// <summary>
-	/// cant draw directly on shelltray wind its not visible...
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	private void PaintTimer_Tick_dis(object sender, EventArgs e)
+	Rectangle rect_Taskbar;
+	private void _drawChart_Timer_Tick(object sender, EventArgs e)
 	{
-		//IntPtr desktop_dc = GetDC(IntPtr.Zero);
-		//using (Graphics g = Graphics.FromHdc(desktop_dc))
-		//{
-		//	g.FillRectangle(Brushes.Red, 0, 0, 100, 100);
-		//}
-		//ReleaseDC(IntPtr.Zero, desktop_dc);
-
-
-		
-		//IntPtr taskbar_Handle = FindWindow("Shell_TrayWnd", null);
-		//using (Graphics g2 = Graphics.FromHwnd(taskbar_Handle))
-		//{
-		//	g2.FillRectangle(Brushes.Green, 0, 0, 50, 50);
-		//}
-		//return;
-
-
-		if (_taskbarHandle == IntPtr.Zero) 
+		if (rect_Taskbar.IsEmpty)
 			return;
 
-		IntPtr hdc = GetDC(_taskbarHandle); // Get DC for the *target child window*
+		on_ChartImage_Requested?.Invoke(rect_Taskbar);
 
-		if (hdc != IntPtr.Zero)
-		{
-			try
-			{
-				// --- IMPORTANT: Coordinates are relative to the _targetAreaHandle's client area ---
-				RECT targetRect;
-				GetWindowRect(_taskbarHandle, out targetRect); 
-				// Get screen coordinates of target
-				// To draw within this target, (0,0) is its top-left.
-
-				using (Graphics g = Graphics.FromHdc(hdc)) // Can use Graphics object if you prefer
-				{
-
-
-					onTaskbar_Paint?.Invoke(
-						g, 
-						new Rectangle(
-							0,
-							0,
-							//targetRect.Top, 
-							//targetRect.Left, 
-							targetRect.Right - targetRect.Left,
-							targetRect.Bottom - targetRect.Top
-						)
-						);
-
-					//this works
-						g.FillRectangle(Brushes.Green, 0, 0 , 50, 50);
-
-					//if(LatestImg != null)
-					//	g.DrawImage(LatestImg, 0, 0);
-
- 
-				}
-			}
-			finally
-			{
-				//ReleaseDC(_taskbarHandle, hdc);
-			}
-		}
 	}
 
 	/// <summary>
@@ -170,7 +73,7 @@ public class TaskbarDrawer
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	private void PaintTimer_Tick(object sender, EventArgs e)
+	private void _refreshTaskbar_Timer_Tick(object sender, EventArgs e)
 	{
 		//IntPtr desktop_dc = GetDC(IntPtr.Zero);
 		//using (Graphics g = Graphics.FromHdc(desktop_dc))
@@ -208,7 +111,7 @@ public class TaskbarDrawer
 			using (Graphics g = Graphics.FromHdc(hdc)) // Can use Graphics object if you prefer
 			{
 
-				var rectangleTaskbar_Full = new Rectangle(
+				rect_Taskbar = new Rectangle(
 						//0,
 						//0,
 						targetRect.Left,
@@ -226,7 +129,7 @@ public class TaskbarDrawer
 						targetRect.Bottom - targetRect.Top
 					);
 
-				onTaskbar_Paint?.Invoke(g, rectangleTaskbar_Full);
+				//onTaskbar_Paint?.Invoke(g, rectangleTaskbar_Full);
 
 				//this works
 				//g.FillRectangle(Brushes.Green, 0, 0, 50, 50);
@@ -234,9 +137,14 @@ public class TaskbarDrawer
 				//test
 				//g.FillRectangle(Brushes.Green, rectangleTaskbar_TargetLeft);
 
-				//if(LatestImg != null)
-				//	g.DrawImage(LatestImg, 0, 0);
+				if (LatestImg != null)
+				{
+					//g.DrawImage(LatestImg, 0, 0);
 
+					//gTaskbar.DrawImage(img_combined, 0,0,img1.Width,img1.Height);
+					g.DrawImage(LatestImg, rect_Taskbar.X, rect_Taskbar.Y, LatestImg.Width, LatestImg.Height);
+
+				}
 
 
 			}
@@ -250,7 +158,7 @@ public class TaskbarDrawer
 
 	public void Stop()
 	{
-		_paintTimer?.Stop();
+		_drawChart_Timer?.Stop();
 		// How to "clean up" what you drew? You can't easily.
 		// You might try to force a repaint of the taskbar area,
 		// but it might not always work or could cause visual glitches.
@@ -259,6 +167,51 @@ public class TaskbarDrawer
 
 
 
+
+
+
+
+	// --- hit test if taskbar is not covered by another window... so we can draw on it..
+	[DllImport("user32.dll")]
+	static extern IntPtr WindowFromPoint(POINTSTRUCT Point); // Using POINTSTRUCT from previous WINDOWPLACEMENT
+	[StructLayout(LayoutKind.Sequential)]
+	public struct POINTSTRUCT
+	{
+		public int X;
+		public int Y;
+	}
+
+	// --- Windows API P/Invoke Signatures ---
+	[DllImport("user32.dll", SetLastError = true)]
+	public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+	[DllImport("user32.dll", SetLastError = true)]
+	static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
+
+
+
+	[DllImport("user32.dll")]
+	static extern IntPtr GetDC(IntPtr hWnd);
+
+	[DllImport("user32.dll")]
+	static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+
+	[DllImport("user32.dll")]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct RECT
+	{
+		public int Left;
+		public int Top;
+		public int Right;
+		public int Bottom;
+
+		public int Width => Right - Left;
+		public int Height => Bottom - Top;
+	}
 
 	// Ensure GetParent P/Invoke is available:
 	[DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
