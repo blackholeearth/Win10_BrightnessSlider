@@ -276,21 +276,28 @@ namespace hardwareMonitor_atTaskbar
 			DrawGraphBar(e.Graphics, panelNetworkGraph, _networkHistory, scaleMaxNet, "NET", "KB/s", CurrentNetworkSpeedKBps);
 		}
 
+
+		Bitmap img1, img2 , img3, img_combined;
+		Graphics g_img1, g_img2, g_img3, g_img_combined;
+		void initBitmaps(Rectangle CliRect) 
+		{
+			int extraWidth = 8;
+
+			img1 = new Bitmap((MaxHistoryPoints + 2) + extraWidth, CliRect.Height);
+			img2 = new Bitmap((MaxHistoryPoints + 2) + extraWidth, CliRect.Height);
+			img3 = new Bitmap((MaxHistoryPoints + 2) + extraWidth, CliRect.Height);
+			img_combined = new Bitmap(img3.Width * 3, CliRect.Height); //3, there is 3 chart.
+
+			g_img1 = Graphics.FromImage(img1);
+			g_img2 = Graphics.FromImage(img2);
+			g_img3 = Graphics.FromImage(img3);
+			g_img_combined = Graphics.FromImage(img_combined);
+		}
+
 		private void onTaskbar_Paint(Graphics gTaskbar, Rectangle CliRect)
 		{
-
-			int extraWidth = 8;
-			var img1 = new Bitmap((MaxHistoryPoints + 2) + extraWidth, CliRect.Height);
-			var g_img1 = Graphics.FromImage(img1);
-
-			var img2 = new Bitmap((MaxHistoryPoints + 2) + extraWidth, CliRect.Height);
-			var g_img2 = Graphics.FromImage(img2);
-
-			var img3 = new Bitmap((MaxHistoryPoints + 2) + extraWidth, CliRect.Height);
-			var g_img3 = Graphics.FromImage(img3);
-
-			var img_combined = new Bitmap(img3.Width * 3, CliRect.Height); //3, there is 3 chart.
-			var g_img_combined = Graphics.FromImage(img_combined);
+			if(img1 is null)
+				initBitmaps(CliRect);
 
 
 			//DRAW CPU

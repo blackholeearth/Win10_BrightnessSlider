@@ -192,9 +192,7 @@ public class TaskbarDrawer
 			// Get screen coordinates of target
 			// To draw within this target, (0,0) is its top-left.
 
-
 			//--- is taskbar visible
-
 			// --- Define your content's intended area relative to taskbar ---
 			int contentOffsetX = 5;  // Where your drawing starts from taskbar's left
 			int contentWidth = 200;  // The width of your drawing
@@ -205,11 +203,6 @@ public class TaskbarDrawer
 				System.Diagnostics.Debug.WriteLine("TaskbarDrawer: Target draw area on taskbar is obscured. Drawing paused.");
 				return; // Skip drawing
 			}
-
-
-
-
-
 
 
 			using (Graphics g = Graphics.FromHdc(hdc)) // Can use Graphics object if you prefer
@@ -250,7 +243,7 @@ public class TaskbarDrawer
 		}
 		finally
 		{
-			//ReleaseDC(_taskbarHandle, hdc);
+			ReleaseDC(_taskbarHandle, hdc);
 		}
 
 	}
