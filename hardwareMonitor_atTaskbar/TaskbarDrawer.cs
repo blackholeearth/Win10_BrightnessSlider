@@ -9,7 +9,6 @@ public class TaskbarDrawer
 	public static bool location_AtRight = true; //for win10 true;
 
 
-
 	private System.Windows.Forms.Timer 
 		_drawChart_Timer,
 		_refreshTaskbar_Timer;
@@ -53,7 +52,6 @@ public class TaskbarDrawer
 			_trayAreaHandle = _taskbarHandle; // Fallback to drawing on main taskbar, which is usually too broad
 		}
 
-
 		
 	}
 
@@ -69,16 +67,6 @@ public class TaskbarDrawer
 
 	private void _drawChart_Timer_Tick(object sender, EventArgs e)
 	{
-		//if (rectangle_Taskbar.IsEmpty)
-		//	return;
-
-		//if (position_AtRight)
-		//{
-
-		//	if (rectangle_TrayArea.IsEmpty)
-		//		return;
-		//}
-
 		if (rectangle_Final.IsEmpty)
 			return;
 
@@ -114,29 +102,23 @@ public class TaskbarDrawer
 			GetWindowRect(_trayAreaHandle, out trayRect);
 
 
-			// Get screen coordinates of target
-			// To draw within this target, (0,0) is its top-left.
 
 			//--- is taskbar visible
 			// --- Define your content's intended area relative to taskbar ---
 			//int contentOffsetX = 5;  // Where your drawing starts from taskbar's left
 			int contentOffsetX = (int)(taskbarRect.Width*0.480); 
 			int contentWidth = LatestImg?.Width ?? 200;  // The width of your drawing  
-
 			int contentHeight = taskbarRect.Height; // You draw the full height
 
 
-			
-
 			if (location_AtRight)
 			{
-
 				//at right
 				rectangle_Final = new Rectangle(
 					trayRect.Left - contentWidth,
-					trayRect.Top,
+					taskbarRect.Top,
 					contentWidth,
-					trayRect.Height
+					taskbarRect.Height
 				);
 			}
 			else
@@ -150,50 +132,27 @@ public class TaskbarDrawer
 						taskbarRect.Height
 					);
 
-				//rectangle_Taskbar = new Rectangle(
-				//		taskbarRect.Left + contentOffsetX,
-				//		taskbarRect.Top,
-				//		taskbarRect.Width,
-				//		taskbarRect.Height
-				//	);
 			}
 
 
 
 			// ****** USE THE HIT-TEST LOGIC ******
-			//if (!IsTaskbarAreaVisibleAndTop(taskbarRect, contentOffsetX, contentWidth, contentHeight))
 			if (!IsTaskbarAreaVisibleAndTop(new RECT(rectangle_Final) ))
 			{
 				System.Diagnostics.Debug.WriteLine("TaskbarDrawer: Target draw area on taskbar is obscured. Drawing paused.");
 				return; // Skip drawing
 			}
 
-
 			using (Graphics g = Graphics.FromHdc(hdc)) // Can use Graphics object if you prefer
 			{
-
-				
-
-				//var rectangleTaskbar_TargetLeft = new Rectangle(
-				//		targetRect.Left, targetRect.Top,
-				//		200,
-				//		targetRect.Bottom - targetRect.Top
-				//	);
-
-				//onTaskbar_Paint?.Invoke(g, rectangleTaskbar_Full);
-
 				//this works
 				//g.FillRectangle(Brushes.Green, 0, 0, 50, 50);
 
-				//test
-				//g.FillRectangle(Brushes.Green, rectangleTaskbar_TargetLeft);
 
 				if (LatestImg != null)
 				{
 					//g.DrawImage(LatestImg, 0, 0);
 
-					//gTaskbar.DrawImage(img_combined, 0,0,img1.Width,img1.Height);
-					//g.DrawImage(LatestImg, rectangle_Taskbar.X, rectangle_Taskbar.Y, LatestImg.Width, LatestImg.Height);
 					//g.DrawRectangle(Pens.Red, rectangle_Final.X, rectangle_Final.Y, 200, LatestImg.Height);
 					g.DrawImage(LatestImg, rectangle_Final.X, rectangle_Final.Y, LatestImg.Width, LatestImg.Height);
 
