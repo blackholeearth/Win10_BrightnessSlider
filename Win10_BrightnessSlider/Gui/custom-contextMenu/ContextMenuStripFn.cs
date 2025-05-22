@@ -39,7 +39,7 @@ namespace Win10_BrightnessSlider
         /// <summary>
         /// increase item Area Height - not the Fontsize
         /// </summary>
-        public int item_verticalPadding = 6; // 14 -- win11 1080p 125%  near
+        public int item_verticalPadding = 5; // 14 -- win11 1080p 125%  near
 
 
         public CMS_colors() {
@@ -191,7 +191,7 @@ namespace Win10_BrightnessSlider
                 });
 
 
-            //no problem locatiion is ok.
+            //no problem location is ok.
             if (Debugger.IsAttached)
                 DrawOnScreen.DrawRect(new Rectangle(notifyicon_Rect.Location, new Size(5, 5)));
         }

@@ -79,9 +79,8 @@ namespace Win10_BrightnessSlider
 
 /*
 
-v1.8.27 still dev  
+v1.8.27
 * win+space > everthing ,  added error message.. "you need to install to default folder"
-
 
 v1.8.26
 * extras -> slider wButton , width is Back to Previous Size. - #182
