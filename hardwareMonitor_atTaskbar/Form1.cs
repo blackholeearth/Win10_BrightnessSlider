@@ -44,7 +44,8 @@ namespace hardwareMonitor_atTaskbar
 		public TaskbarDrawer _drawer = new();
 
 
-		public OverlayForm _overlayForm = new(null);
+		//not used currently.
+		//public OverlayForm _overlayForm = new(null);
 
 
 		public Form1()
@@ -56,7 +57,7 @@ namespace hardwareMonitor_atTaskbar
 			this.Shown += (s1, e1) => { this.Hide(); };
 
 			_drawer = new TaskbarDrawer(); // Instantiate it
-			//_drawer.onTaskbar_Paint += onTaskbar_Paint;
+										   //_drawer.onTaskbar_Paint += onTaskbar_Paint;
 			_drawer.on_ChartImage_Requested += on_ChartImage_Requested;
 
 			//make Graph Start from End---
@@ -87,14 +88,16 @@ namespace hardwareMonitor_atTaskbar
 			}
 			catch (Exception ex) { Console.WriteLine("Error setting notify icon: " + ex.Message); }
 
-			var mi_hide = trayContextMenuStrip.Items.Add("Show / Hide", null, (s1, e1) => Toggle_ShowHide());
+			var mi_pos = trayContextMenuStrip.Items.Add("Toggle Location: Left/Right", null,
+				(s1, e1) => { TaskbarDrawer.location_AtRight = !TaskbarDrawer.location_AtRight; });
+
+			var mi_hide = trayContextMenuStrip.Items.Add("Show/Hide", null, (s1, e1) => Toggle_ShowHide());
 			var mi_sep1 = trayContextMenuStrip.Items.Add("-");
 			var mi_exit = trayContextMenuStrip.Items.Add("Exit", null, ExitMenuItem_Click);
 			appNotifyIcon.Visible = true;
 
 			appNotifyIcon.ContextMenuStrip = trayContextMenuStrip;
 		}
-
 
 		private void Toggle_ShowHide()
 		{
@@ -398,6 +401,7 @@ namespace hardwareMonitor_atTaskbar
 		}
 
 
+		///  --draw graph funcs
 
 		//private void DrawGraphLine(Graphics g, Panel panel, Queue<float> history, Color lineColor, float maxValue, string unitLabel)
 		//{
@@ -464,7 +468,9 @@ namespace hardwareMonitor_atTaskbar
 		static Color col_LabelName = Color.FromArgb(68, 68, 68);
 		static Color col_LabelValue = Color.FromArgb(156, 214, 51);
 		static Color col_Bar = Color.FromArgb(37, 84, 142);
-		static Color col_backColor = Color.FromArgb(28, 28, 28);
+		//static Color col_backColor = Color.FromArgb(28, 28, 28);
+		//win10 - 1809
+		static Color col_backColor = Color.FromArgb(16, 16, 16);
 
 		//static Color col_Axis = Color.FromArgb(80, 80, 80); // Dim axis color //where did this come From??
 		private void DrawGraphBar(
@@ -646,12 +652,11 @@ namespace hardwareMonitor_atTaskbar
 		}
 
 
+		// --- menu click toggle show hide
 		private void ExitMenuItem_Click(object sender, EventArgs e) => Application.Exit();
-
 		private void appNotifyIcon_DoubleClick(object sender, EventArgs e)
 		{
 			//Toggle_ShowHide(); 
-			
 			//this.Show();
 		}
 
@@ -684,6 +689,7 @@ namespace hardwareMonitor_atTaskbar
 			if (e.Button == MouseButtons.Left)
 				Toggle_ShowHide();
 		}
+
 	}
 
 

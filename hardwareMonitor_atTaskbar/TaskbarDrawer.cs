@@ -5,6 +5,11 @@ using System.Windows.Forms; // For Timer, not for drawing on taskbar
 
 public class TaskbarDrawer
 {
+	//preferences
+	public static bool location_AtRight = true; //for win10 true;
+
+
+
 	private System.Windows.Forms.Timer 
 		_drawChart_Timer,
 		_refreshTaskbar_Timer;
@@ -23,7 +28,7 @@ public class TaskbarDrawer
 
 
 		_refreshTaskbar_Timer = new System.Windows.Forms.Timer();
-		_refreshTaskbar_Timer.Interval = 100; // 350; 
+		_refreshTaskbar_Timer.Interval = 200; // 350; 
 		_refreshTaskbar_Timer.Tick += _refreshTaskbar_Timer_Tick;
 		_refreshTaskbar_Timer.Start();
 
@@ -58,13 +63,26 @@ public class TaskbarDrawer
 	/// </summary>
 	public Action<Rectangle> on_ChartImage_Requested;
 
-	Rectangle rect_Taskbar;
+	//Rectangle rectangle_Taskbar;
+	//Rectangle rectangle_TrayArea;
+	Rectangle rectangle_Final;
+
 	private void _drawChart_Timer_Tick(object sender, EventArgs e)
 	{
-		if (rect_Taskbar.IsEmpty)
+		//if (rectangle_Taskbar.IsEmpty)
+		//	return;
+
+		//if (position_AtRight)
+		//{
+
+		//	if (rectangle_TrayArea.IsEmpty)
+		//		return;
+		//}
+
+		if (rectangle_Final.IsEmpty)
 			return;
 
-		on_ChartImage_Requested?.Invoke(rect_Taskbar);
+		on_ChartImage_Requested?.Invoke(rectangle_Final);
 
 	}
 
@@ -90,18 +108,61 @@ public class TaskbarDrawer
 		try
 		{
 			// --- IMPORTANT: Coordinates are relative to the _targetAreaHandle's client area ---
-			RECT targetRect;
-			GetWindowRect(_taskbarHandle, out targetRect);
+			RECT taskbarRect;
+			RECT trayRect;
+			GetWindowRect(_taskbarHandle , out taskbarRect);
+			GetWindowRect(_trayAreaHandle, out trayRect);
+
+
 			// Get screen coordinates of target
 			// To draw within this target, (0,0) is its top-left.
 
 			//--- is taskbar visible
 			// --- Define your content's intended area relative to taskbar ---
-			int contentOffsetX = 5;  // Where your drawing starts from taskbar's left
-			int contentWidth = 200;  // The width of your drawing
-			int contentHeight = targetRect.Height; // You draw the full height
-														   // ****** USE THE HIT-TEST LOGIC ******
-			if (!IsTaskbarAreaVisibleAndTop(targetRect, contentOffsetX, contentWidth, contentHeight))
+			//int contentOffsetX = 5;  // Where your drawing starts from taskbar's left
+			int contentOffsetX = (int)(taskbarRect.Width*0.480); 
+			int contentWidth = LatestImg?.Width ?? 200;  // The width of your drawing  
+
+			int contentHeight = taskbarRect.Height; // You draw the full height
+
+
+			
+
+			if (location_AtRight)
+			{
+
+				//at right
+				rectangle_Final = new Rectangle(
+					trayRect.Left - contentWidth,
+					trayRect.Top,
+					contentWidth,
+					trayRect.Height
+				);
+			}
+			else
+			{
+				//at left
+				rectangle_Final = new Rectangle(
+						//taskbarRect.Left + contentOffsetX,
+						taskbarRect.Left,
+						taskbarRect.Top,
+						contentWidth,
+						taskbarRect.Height
+					);
+
+				//rectangle_Taskbar = new Rectangle(
+				//		taskbarRect.Left + contentOffsetX,
+				//		taskbarRect.Top,
+				//		taskbarRect.Width,
+				//		taskbarRect.Height
+				//	);
+			}
+
+
+
+			// ****** USE THE HIT-TEST LOGIC ******
+			//if (!IsTaskbarAreaVisibleAndTop(taskbarRect, contentOffsetX, contentWidth, contentHeight))
+			if (!IsTaskbarAreaVisibleAndTop(new RECT(rectangle_Final) ))
 			{
 				System.Diagnostics.Debug.WriteLine("TaskbarDrawer: Target draw area on taskbar is obscured. Drawing paused.");
 				return; // Skip drawing
@@ -111,23 +172,13 @@ public class TaskbarDrawer
 			using (Graphics g = Graphics.FromHdc(hdc)) // Can use Graphics object if you prefer
 			{
 
-				rect_Taskbar = new Rectangle(
-						//0,
-						//0,
-						targetRect.Left,
-						targetRect.Top,
-						targetRect.Right - targetRect.Left,
-						targetRect.Bottom - targetRect.Top
-					);
+				
 
-				var rectangleTaskbar_TargetLeft = new Rectangle(
-						//0,
-						//0,
-						targetRect.Left,
-						targetRect.Top,
-						200,
-						targetRect.Bottom - targetRect.Top
-					);
+				//var rectangleTaskbar_TargetLeft = new Rectangle(
+				//		targetRect.Left, targetRect.Top,
+				//		200,
+				//		targetRect.Bottom - targetRect.Top
+				//	);
 
 				//onTaskbar_Paint?.Invoke(g, rectangleTaskbar_Full);
 
@@ -142,7 +193,9 @@ public class TaskbarDrawer
 					//g.DrawImage(LatestImg, 0, 0);
 
 					//gTaskbar.DrawImage(img_combined, 0,0,img1.Width,img1.Height);
-					g.DrawImage(LatestImg, rect_Taskbar.X, rect_Taskbar.Y, LatestImg.Width, LatestImg.Height);
+					//g.DrawImage(LatestImg, rectangle_Taskbar.X, rectangle_Taskbar.Y, LatestImg.Width, LatestImg.Height);
+					//g.DrawRectangle(Pens.Red, rectangle_Final.X, rectangle_Final.Y, 200, LatestImg.Height);
+					g.DrawImage(LatestImg, rectangle_Final.X, rectangle_Final.Y, LatestImg.Width, LatestImg.Height);
 
 				}
 
@@ -204,10 +257,19 @@ public class TaskbarDrawer
 	[StructLayout(LayoutKind.Sequential)]
 	public struct RECT
 	{
-		public int Left;
-		public int Top;
-		public int Right;
-		public int Bottom;
+		public int Left, Top, Right, Bottom;
+
+		public RECT(int left, int top, int right, int bottom)
+		{
+			Left = left;
+			Top = top;
+			Right = right;
+			Bottom = bottom;
+		}
+		public RECT(Rectangle r)
+			   : this(r.Left, r.Top, r.Right, r.Bottom)
+		{
+		}
 
 		public int Width => Right - Left;
 		public int Height => Bottom - Top;
@@ -217,28 +279,42 @@ public class TaskbarDrawer
 	[DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
 	public static extern IntPtr GetParent(IntPtr hWnd);
 
-	private bool IsTaskbarAreaVisibleAndTop(RECT taskbarScreenRect, int contentOffsetX, int contentWidth, int contentHeight)
+
+	private bool IsTaskbarAreaVisibleAndTop(RECT contentRect )
 	{
-		if (taskbarScreenRect.Width <= 0 || taskbarScreenRect.Height <= 0) return false;
+		if (contentRect.Width <= 0 || contentRect.Height <= 0) return false;
 
 		// --- Choose a few test points within your intended drawing area ---
 		// These points are in SCREEN coordinates.
-		POINTSTRUCT testPoint1 = new POINTSTRUCT // Center of your drawing area
+
+		var testPoint1 = new POINTSTRUCT // Center of your drawing area
 		{
-			X = taskbarScreenRect.Left + contentOffsetX + (contentWidth / 2),
-			Y = taskbarScreenRect.Top + (contentHeight / 2)
+			X = contentRect.Left + (contentRect.Width / 2),
+			Y = contentRect.Top + (contentRect.Height / 2)
 		};
 
-		POINTSTRUCT testPoint2 = new POINTSTRUCT // Top-left of your drawing area
+		var testPoint2 = new POINTSTRUCT // Top-left of your drawing area
 		{
-			X = taskbarScreenRect.Left + contentOffsetX + 2, // Small offset in
-			Y = taskbarScreenRect.Top + 2
+			X = contentRect.Left + 2, // Small offset in
+			Y = contentRect.Top + 2
 		};
 
-		POINTSTRUCT testPoint3 = new POINTSTRUCT // Bottom-right of your drawing area
+		var testPoint3 = new POINTSTRUCT // Bottom-right of your drawing area
 		{
-			X = taskbarScreenRect.Left + contentOffsetX + contentWidth - 2,
-			Y = taskbarScreenRect.Top + contentHeight - 2
+			X = contentRect.Left + contentRect.Width - 2,
+			Y = contentRect.Top + contentRect.Height - 2
+		};
+
+
+		var testPoint2b = new POINTSTRUCT // Top-right of your drawing area
+		{
+			X = contentRect.Right - 2, // Small offset in
+			Y = contentRect.Top + 2
+		};
+		var testPoint3b = new POINTSTRUCT // Bottom-left of your drawing area
+		{
+			X = contentRect.Left + contentRect.Width - 2,
+			Y = contentRect.Bottom + 2
 		};
 
 		IntPtr[] targetHandles = { _taskbarHandle }; // Primarily expect Shell_TrayWnd
@@ -248,7 +324,10 @@ public class TaskbarDrawer
 													 // if (trayNotifyWnd != IntPtr.Zero) { /* add to a list of valid handles */ }
 
 
-		POINTSTRUCT[] pointsToTest = { testPoint1, testPoint2, testPoint3 };
+		POINTSTRUCT[] pointsToTest = { testPoint1, testPoint2, testPoint3 
+				 ,testPoint2b 
+				 //,testPoint3b
+		};
 		int matchCount = 0;
 
 		foreach (POINTSTRUCT pt in pointsToTest)
