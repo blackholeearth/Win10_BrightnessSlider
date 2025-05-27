@@ -156,7 +156,6 @@ namespace hardwareMonitor_atTaskbar
 				_cpuCounter = null; // Mark as unusable
 			}
 		}
-
 		private string GetActiveNetworkInterfaceInstanceName()
 		{
 			// (Keep your existing GetActiveNetworkInterfaceInstanceName() method here)
@@ -298,7 +297,6 @@ namespace hardwareMonitor_atTaskbar
 			float currentMaxCPU = _cpuHistory.Any() ? _cpuHistory.Max() : 100f;
 			if(currentMaxCPU <= 50f)
 				currentMaxCPU = 50f;
-
 			DrawGraphBar_onBitmap(g_img1, rect1, _cpuHistory, currentMaxCPU, "CPU", "%", CurrentCpuUsage);
 
 			//DRAW DISK
