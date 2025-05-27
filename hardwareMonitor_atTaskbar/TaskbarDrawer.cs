@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms; // For Timer, not for drawing on taskbar
@@ -111,14 +112,22 @@ public class TaskbarDrawer
 			int contentHeight = taskbarRect.Height; // You draw the full height
 
 			int paddingTop = 2; //for win11;
-			int paddingbottomForDebug =0; 
+
+			int paddingbottomForDebug = 0;
+			int paddingLeftForDebug = 0;
+			if (Debugger.IsAttached) 
+			{
+				paddingbottomForDebug = 0;
+				paddingLeftForDebug = 200;
+			}
+			
 
 			
 			if (location_AtRight)
 			{
 				//at right
 				rectangle_Final = new Rectangle(
-					trayRect.Left - contentWidth,
+					trayRect.Left - contentWidth - paddingLeftForDebug,
 					taskbarRect.Top + paddingTop,
 					contentWidth,
 					taskbarRect.Height -paddingTop -paddingbottomForDebug
@@ -129,7 +138,7 @@ public class TaskbarDrawer
 				//at left
 				rectangle_Final = new Rectangle(
 						//taskbarRect.Left + contentOffsetX,
-						taskbarRect.Left,
+						taskbarRect.Left + paddingLeftForDebug,
 						taskbarRect.Top + paddingTop,
 						contentWidth,
 						taskbarRect.Height -paddingTop -paddingbottomForDebug
