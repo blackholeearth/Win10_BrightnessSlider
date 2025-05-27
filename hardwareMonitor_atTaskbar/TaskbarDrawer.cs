@@ -110,16 +110,18 @@ public class TaskbarDrawer
 			int contentWidth = LatestImg?.Width ?? 200;  // The width of your drawing  
 			int contentHeight = taskbarRect.Height; // You draw the full height
 
-			//int paddingTop = 1; //for win11;
+			int paddingTop = 2; //for win11;
+			int paddingbottomForDebug =0; 
 
+			
 			if (location_AtRight)
 			{
 				//at right
 				rectangle_Final = new Rectangle(
 					trayRect.Left - contentWidth,
-					taskbarRect.Top,
+					taskbarRect.Top + paddingTop,
 					contentWidth,
-					taskbarRect.Height
+					taskbarRect.Height -paddingTop -paddingbottomForDebug
 				);
 			}
 			else
@@ -128,9 +130,9 @@ public class TaskbarDrawer
 				rectangle_Final = new Rectangle(
 						//taskbarRect.Left + contentOffsetX,
 						taskbarRect.Left,
-						taskbarRect.Top,
+						taskbarRect.Top + paddingTop,
 						contentWidth,
-						taskbarRect.Height
+						taskbarRect.Height -paddingTop -paddingbottomForDebug
 					);
 
 			}
@@ -144,7 +146,6 @@ public class TaskbarDrawer
 				return; // Skip drawing
 			}
 			
-			int paddingTop = 2; //for win11;
 
 			using (Graphics g = Graphics.FromHdc(hdc)) // Can use Graphics object if you prefer
 			{
@@ -154,7 +155,7 @@ public class TaskbarDrawer
 				{
 					//g.DrawImage(LatestImg, 0, 0);
 					//g.DrawRectangle(Pens.Red, rectangle_Final.X, rectangle_Final.Y, 200, LatestImg.Height);
-					g.DrawImage(LatestImg, rectangle_Final.X, rectangle_Final.Y + paddingTop, LatestImg.Width, LatestImg.Height);
+					g.DrawImage(LatestImg, rectangle_Final.X, rectangle_Final.Y, LatestImg.Width, LatestImg.Height);
 				}
 
 
