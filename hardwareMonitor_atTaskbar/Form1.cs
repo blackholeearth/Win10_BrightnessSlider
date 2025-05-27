@@ -296,7 +296,7 @@ namespace hardwareMonitor_atTaskbar
 			var rect2 = new Rectangle(0, 0, (MaxHistoryPoints + 2), CliRect.Height);
 
 			float maxDisk = _diskHistory.Any() ? _diskHistory.Max() : 10f; 
-			if (maxDisk < 1.0f) maxDisk = 1.0f;
+			if (maxDisk < 1.0f) maxDisk = 1.0f; //ensure a minimum
 			DrawGraphBar_onBitmap(g_img2, rect2, _diskHistory, maxDisk, "DISK", "MB/s", CurrentDiskSpeedMBps);
 
 			//DRAW NET
