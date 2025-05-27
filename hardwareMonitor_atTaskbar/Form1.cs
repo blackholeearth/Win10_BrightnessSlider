@@ -465,85 +465,8 @@ namespace hardwareMonitor_atTaskbar
 			string unitSymbol,
 			float currentValue)
 		{
-			//g.SmoothingMode = SmoothingMode.AntiAlias;
-			//g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit; // Smoother text
-			g.Clear(col_backColor);
 
-			if (!history.Any())
-			{
-				TextRenderer.DrawText(g, "Collecting data...", panel.Font, panel.ClientRectangle, Color.Gray,
-					TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-				return;
-			}
-
-			float scaleMax = yAxisMaxValue;
-
-			using (SolidBrush barBrush = new SolidBrush(col_Bar))
-			//using (Pen axisPen = new Pen(col_Axis, 1f))
-			using (Brush textBrush_Value = new SolidBrush(col_LabelValue))
-			using (Brush textBrush_name = new SolidBrush(col_LabelName))
-			using (Font valueFont = new Font("Segoe UI", 7f, FontStyle.Bold))  // Font for Current Value
-			using (Font nameFont = new Font("Segoe UI", 7f, FontStyle.Bold)) // Font for Graph Name
-			{
-				float[] points = history.ToArray();
-				int dataPointCount = points.Length;
-
-				float slotWidth = (float)panel.Width / MaxHistoryPoints;
-				float barWidthRatio = 0.8f;
-				float actualBarWidth = Math.Max(1f, slotWidth * barWidthRatio);
-				float barSpacing = (slotWidth - actualBarWidth) / 2f;
-
-				for (int i = 0; i < dataPointCount; i++)
-				{
-					float value = points[i];
-					float barHeightPercentage = (value / scaleMax);
-					if (value > scaleMax) barHeightPercentage = 1f;
-					if (value < 0) barHeightPercentage = 0f;
-
-					float barHeight = barHeightPercentage * panel.Height;
-					float xPos = i * slotWidth + barSpacing;
-					g.FillRectangle(barBrush, xPos, panel.Height - barHeight, actualBarWidth, barHeight);
-				}
-
-				// --- Text Drawing with New Positioning ---
-				StringFormat sfCenter = new StringFormat
-				{
-					Alignment = StringAlignment.Center,     // Horizontal Center
-					LineAlignment = StringAlignment.Center  // Vertical Center
-				};
-				StringFormat sfTopCenter = new StringFormat
-				{
-					Alignment = StringAlignment.Center,     // Horizontal Center
-					LineAlignment = StringAlignment.Near    // Vertical Top
-				};
-
-				//int paddingTop = 5; // Padding from the top edge
-				int paddingTop = 0; // Padding from the top edge
-
-				// 1. Draw Current Value (e.g., "55.3 %") - Top Center
-				string valueText = $"{currentValue:F0} {unitSymbol}";
-				if (unitSymbol.Contains("MB/s") || unitSymbol.Contains("KB/s"))
-				{
-					valueText = $"{currentValue:F1} {unitSymbol}";
-					if (currentValue > 999.9 && unitSymbol.Contains("KB/s"))
-					{
-						valueText = $"{currentValue / 1024.0:F1} MB/s";
-					}
-					else if (currentValue > 999.9 && unitSymbol.Contains("MB/s"))
-					{
-						valueText = $"{currentValue / 1024.0:F1} GB/s";
-					}
-				}
-				// Create a rectangle for the top area to center the text within
-				RectangleF valueRect = new RectangleF(0, paddingTop, panel.Width, valueFont.Height + paddingTop);
-				g.DrawString(valueText, valueFont, textBrush_Value, valueRect, sfTopCenter);
-
-
-				// 2. Draw Graph Name (e.g., "CPU") - Middle Center
-				// Create a rectangle for the entire panel to center the text within
-				RectangleF nameRect = new RectangleF(0, 0, panel.Width, panel.Height);
-				g.DrawString(graphName, nameFont, textBrush_name, nameRect, sfCenter);
-			}
+			DrawGraphBar_onBitmap(g,panel.DisplayRectangle,history,yAxisMaxValue,graphName,unitSymbol,currentValue);
 		}
 
 		private void DrawGraphBar_onBitmap(
