@@ -129,7 +129,9 @@ namespace hardwareMonitor_atTaskbar
 		{
 			try
 			{
-				_cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+				//https://stackoverflow.com/questions/23391455/performancecounter-reporting-higher-cpu-usage-than-whats-observed
+				//_cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");  //at win11 this give me half of Taskmanager.
+				_cpuCounter = new PerformanceCounter("Processor Information", "% Processor Utility", "_Total");
 				_cpuCounter.NextValue(); // Prime
 				System.Threading.Thread.Sleep(100);
 
