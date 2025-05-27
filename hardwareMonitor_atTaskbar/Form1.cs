@@ -106,21 +106,6 @@ namespace hardwareMonitor_atTaskbar
 		}
 
 
-
-		// --- NEW: Helper to enable double buffering on controls ---
-		public static void SetDoubleBuffered(Control control)
-		{
-			// Call by reflection
-			typeof(Control).InvokeMember("DoubleBuffered",
-				System.Reflection.BindingFlags.SetProperty |
-				System.Reflection.BindingFlags.Instance |
-				System.Reflection.BindingFlags.NonPublic,
-				null, control, new object[] { true });
-		}
-		// --- END NEW ---
-
-
-
 		private void Form1_Load(object sender, EventArgs e)
 		{
 			if (_cpuCounter != null)
@@ -689,6 +674,23 @@ namespace hardwareMonitor_atTaskbar
 			if (e.Button == MouseButtons.Left)
 				Toggle_ShowHide();
 		}
+
+
+
+
+
+		// --- NEW: Helper to enable double buffering on controls ---
+		public static void SetDoubleBuffered(Control control)
+		{
+			// Call by reflection
+			typeof(Control).InvokeMember("DoubleBuffered",
+				System.Reflection.BindingFlags.SetProperty |
+				System.Reflection.BindingFlags.Instance |
+				System.Reflection.BindingFlags.NonPublic,
+				null, control, new object[] { true });
+		}
+		// --- END NEW ---
+
 
 	}
 
