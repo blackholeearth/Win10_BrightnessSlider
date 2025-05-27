@@ -511,7 +511,7 @@ namespace hardwareMonitor_atTaskbar
 
 
 
-		// --- NEW: Helper to enable double buffering on controls ---
+		// --- Helper to enable double buffering on controls ---
 		public static void SetDoubleBuffered(Control control)
 		{
 			// Call by reflection
@@ -521,7 +521,6 @@ namespace hardwareMonitor_atTaskbar
 				System.Reflection.BindingFlags.NonPublic,
 				null, control, new object[] { true });
 		}
-		// --- END NEW ---
 
 
 	}
