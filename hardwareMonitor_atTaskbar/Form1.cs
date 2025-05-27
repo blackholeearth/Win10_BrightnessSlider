@@ -207,8 +207,8 @@ namespace hardwareMonitor_atTaskbar
 				lblDiskValue.Text = $"{CurrentDiskSpeedMBps:F1} MB/s";
 				lblNetworkValue.Text = $"{CurrentNetworkSpeedKBps:F1} KB/s";
 
-				FormattedStringForTaskbar = $"C:{CurrentCpuUsage:F0}% D:{CurrentDiskSpeedMBps:F1} N:{CurrentNetworkSpeedMBps:F1}";
-				lblCombinedValue.Text = FormattedStringForTaskbar;
+				//FormattedStringForTaskbar = $"C:{CurrentCpuUsage:F0}% D:{CurrentDiskSpeedMBps:F1} N:{CurrentNetworkSpeedMBps:F1}";
+				//lblCombinedValue.Text = FormattedStringForTaskbar;
 
 				// ---  Update history and invalidate graphs ---
 				UpdateHistory(_cpuHistory, CurrentCpuUsage);
@@ -228,7 +228,6 @@ namespace hardwareMonitor_atTaskbar
 			}
 		}
 
-		// --- NEW: Helper to update history lists ---
 		private void UpdateHistory(Queue<float> history, float value)
 		{
 			history.Enqueue(value);
@@ -237,7 +236,6 @@ namespace hardwareMonitor_atTaskbar
 				history.Dequeue(); // Remove oldest
 			}
 		}
-		// --- END NEW ---
 
 		private void PanelCpuGraph_Paint(object sender, PaintEventArgs e)
 		{
@@ -297,7 +295,7 @@ namespace hardwareMonitor_atTaskbar
 			//DRAW DISK
 			var rect2 = new Rectangle(0, 0, (MaxHistoryPoints + 2), CliRect.Height);
 
-			float maxDisk = _diskHistory.Any() ? _diskHistory.Max() : 10f; // Use .Any() to check if empty
+			float maxDisk = _diskHistory.Any() ? _diskHistory.Max() : 10f; 
 			if (maxDisk < 1.0f) maxDisk = 1.0f;
 			DrawGraphBar_onBitmap(g_img2, rect2, _diskHistory, maxDisk, "DISK", "MB/s", CurrentDiskSpeedMBps);
 
@@ -318,7 +316,8 @@ namespace hardwareMonitor_atTaskbar
 
 			DrawGraphBar_onBitmap(g_img3, rect3, _networkHistory, scaleMaxNet, "NET", "KB/s", CurrentNetworkSpeedKBps);
 
-			//to taskbar
+
+			// --- to taskbar
 			g_img_combined.DrawImage(img1, 0, 0);
 			g_img_combined.DrawImage(img2, img1.Width * 1, 0);
 			g_img_combined.DrawImage(img3, img1.Width * 2, 0);
