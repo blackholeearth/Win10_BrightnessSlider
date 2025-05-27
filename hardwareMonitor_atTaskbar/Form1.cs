@@ -26,7 +26,7 @@ namespace hardwareMonitor_atTaskbar
 		public float CurrentDiskSpeedMBps { get; set; }
 		public float CurrentNetworkSpeedMBps { get; set; }
 		public float CurrentNetworkSpeedKBps { get; set; }
-		public string FormattedStringForTaskbar { get; set; }
+		//public string FormattedStringForTaskbar { get; set; }
 
 		// Event to notify when data is updated
 		public event EventHandler DataUpdated;
