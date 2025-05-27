@@ -290,12 +290,20 @@ namespace hardwareMonitor_atTaskbar
 
 			//DRAW CPU
 			var rect1 = new Rectangle(0, 0, (MaxHistoryPoints + 2), CliRect.Height);
-			DrawGraphBar_onBitmap(g_img1, rect1, _cpuHistory, 100f, "CPU", "%", CurrentCpuUsage);
+			//DrawGraphBar_onBitmap(g_img1, rect1, _cpuHistory, 100f, "CPU", "%", CurrentCpuUsage);
+
+			// Tiered scaling for CPU Graph's Y-axis
+			float currentMaxCPU = _cpuHistory.Any() ? _cpuHistory.Max() : 100f;
+			if(currentMaxCPU <= 50f)
+				currentMaxCPU = 50f;
+
+			DrawGraphBar_onBitmap(g_img1, rect1, _cpuHistory, currentMaxCPU, "CPU", "%", CurrentCpuUsage);
 
 			//DRAW DISK
 			var rect2 = new Rectangle(0, 0, (MaxHistoryPoints + 2), CliRect.Height);
 
-			float maxDisk = _diskHistory.Any() ? _diskHistory.Max() : 10f; 
+			//float maxDisk = _diskHistory.Any() ? _diskHistory.Max() : 10f; 
+			float maxDisk = _diskHistory?.Max() ?? 10f;
 			if (maxDisk < 1.0f) maxDisk = 1.0f; //ensure a minimum
 			DrawGraphBar_onBitmap(g_img2, rect2, _diskHistory, maxDisk, "DISK", "MB/s", CurrentDiskSpeedMBps);
 
@@ -304,7 +312,6 @@ namespace hardwareMonitor_atTaskbar
 
 			float currentMaxNet = _networkHistory.Any() ? _networkHistory.Max() : 0f;
 			float scaleMaxNet;
-
 			// Tiered scaling for Network Graph's Y-axis
 			if (currentMaxNet < 50f) scaleMaxNet = 50f;
 			else if (currentMaxNet <= 250f) scaleMaxNet = 250f;
