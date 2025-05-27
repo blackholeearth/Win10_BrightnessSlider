@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "winforms-SDR-test", "winfor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Win10_BrightnessSlider", "Win10_BrightnessSlider\Win10_BrightnessSlider.csproj", "{5C92E6A2-2FB6-4A34-912B-65B445CFBCC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hardwareMonitor_atTaskbar", "hardwareMonitor_atTaskbar\hardwareMonitor_atTaskbar.csproj", "{1A4A3B49-73D3-4930-9703-229F0B69242E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HardwareMonitor_atTaskbar", "hardwareMonitor_atTaskbar\HardwareMonitor_atTaskbar.csproj", "{1A4A3B49-73D3-4930-9703-229F0B69242E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
