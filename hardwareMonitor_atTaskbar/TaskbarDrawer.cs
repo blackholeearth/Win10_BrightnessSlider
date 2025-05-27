@@ -110,6 +110,7 @@ public class TaskbarDrawer
 			int contentWidth = LatestImg?.Width ?? 200;  // The width of your drawing  
 			int contentHeight = taskbarRect.Height; // You draw the full height
 
+			//int paddingTop = 1; //for win11;
 
 			if (location_AtRight)
 			{
@@ -142,20 +143,18 @@ public class TaskbarDrawer
 				System.Diagnostics.Debug.WriteLine("TaskbarDrawer: Target draw area on taskbar is obscured. Drawing paused.");
 				return; // Skip drawing
 			}
+			
+			int paddingTop = 2; //for win11;
 
 			using (Graphics g = Graphics.FromHdc(hdc)) // Can use Graphics object if you prefer
 			{
 				//this works
 				//g.FillRectangle(Brushes.Green, 0, 0, 50, 50);
-
-
 				if (LatestImg != null)
 				{
 					//g.DrawImage(LatestImg, 0, 0);
-
 					//g.DrawRectangle(Pens.Red, rectangle_Final.X, rectangle_Final.Y, 200, LatestImg.Height);
-					g.DrawImage(LatestImg, rectangle_Final.X, rectangle_Final.Y, LatestImg.Width, LatestImg.Height);
-
+					g.DrawImage(LatestImg, rectangle_Final.X, rectangle_Final.Y + paddingTop, LatestImg.Width, LatestImg.Height);
 				}
 
 
