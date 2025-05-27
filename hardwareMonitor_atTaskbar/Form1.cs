@@ -610,19 +610,9 @@ namespace hardwareMonitor_atTaskbar
 				int paddingTop = 0; // Padding from the top edge
 
 				// 1. Draw Current Value (e.g., "55.3 %") - Top Center
-				string valueText = $"{currentValue:F0} {unitSymbol}";
-				if (unitSymbol.Contains("MB/s") || unitSymbol.Contains("KB/s"))
-				{
-					valueText = $"{currentValue:F1} {unitSymbol}";
-					if (currentValue > 999.9 && unitSymbol.Contains("KB/s"))
-					{
-						valueText = $"{currentValue / 1024.0:F1} MB/s";
-					}
-					else if (currentValue > 999.9 && unitSymbol.Contains("MB/s"))
-					{
-						valueText = $"{currentValue / 1024.0:F1} GB/s";
-					}
-				}
+				string valueText = $"{currentValue:F0}{unitSymbol}";
+				valueText = Humanize_Mb_Kb_toString(unitSymbol, currentValue, valueText);
+
 				// Create a rectangle for the top area to center the text within
 				RectangleF valueRect = new RectangleF(0, paddingTop, rect.Width, valueFont.Height + paddingTop);
 				g.DrawString(valueText, valueFont, textBrush_Value, valueRect, sfTopCenter);
@@ -633,6 +623,34 @@ namespace hardwareMonitor_atTaskbar
 				RectangleF nameRect = new RectangleF(0, 0, rect.Width, rect.Height);
 				g.DrawString(graphName, nameFont, textBrush_name, nameRect, sfCenter);
 			}
+		}
+
+		private static string Humanize_Mb_Kb_toString(string unitSymbol, float currentValue, string valueText)
+		{
+			bool isunit_MB = unitSymbol.Contains("MB/s");
+			bool isunit_KB = unitSymbol.Contains("KB/s");
+			if (isunit_MB || isunit_KB)
+			{
+				valueText = $"{currentValue:F1}{unitSymbol}";
+				//cur >= 100 (aka 3digit), remove fraction.
+				if (currentValue >= 1)
+					valueText = $"{currentValue:F0}{unitSymbol}";
+
+				if (currentValue > 999.9 && isunit_KB)
+				{
+					valueText = $"{currentValue / 1024.0:F1}MB/s";
+					//cur/1024 >= 100 (aka 3digit), remove fraction.
+					if (currentValue / 1024.0 >= 10)
+						valueText = $"{currentValue / 1024.0:F0}MB/s";
+
+				}
+				else if (currentValue > 999.9 && isunit_MB)
+				{
+					valueText = $"{currentValue / 1024.0:F1}GB/s";
+				}
+			}
+
+			return valueText;
 		}
 
 
