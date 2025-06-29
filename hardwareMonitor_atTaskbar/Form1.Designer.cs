@@ -44,7 +44,16 @@ namespace hardwareMonitor_atTaskbar
 			this.label3 = new System.Windows.Forms.Label();
 			this.picBox_taskbarPrev = new System.Windows.Forms.PictureBox();
 			this.label4 = new System.Windows.Forms.Label();
+			this.numud_width = new System.Windows.Forms.NumericUpDown();
+			this.numud_height = new System.Windows.Forms.NumericUpDown();
+			this.chk_useCustom_ScreenRes_forRDP = new System.Windows.Forms.CheckBox();
+			this.numud_dpi_scaleFactor = new System.Windows.Forms.NumericUpDown();
+			this.label5 = new System.Windows.Forms.Label();
+			this.bt_apply_customRes = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.picBox_taskbarPrev)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numud_width)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numud_height)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numud_dpi_scaleFactor)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// panelCpuGraph
@@ -157,7 +166,7 @@ namespace hardwareMonitor_atTaskbar
 			this.picBox_taskbarPrev.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.picBox_taskbarPrev.Location = new System.Drawing.Point(460, 60);
 			this.picBox_taskbarPrev.Name = "picBox_taskbarPrev";
-			this.picBox_taskbarPrev.Size = new System.Drawing.Size(281, 150);
+			this.picBox_taskbarPrev.Size = new System.Drawing.Size(281, 122);
 			this.picBox_taskbarPrev.TabIndex = 9;
 			this.picBox_taskbarPrev.TabStop = false;
 			// 
@@ -171,12 +180,125 @@ namespace hardwareMonitor_atTaskbar
 			this.label4.TabIndex = 10;
 			this.label4.Text = "Taskbar Preview:";
 			// 
+			// numud_width
+			// 
+			this.numud_width.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.numud_width.Location = new System.Drawing.Point(494, 268);
+			this.numud_width.Maximum = new decimal(new int[] {
+            9500,
+            0,
+            0,
+            0});
+			this.numud_width.Minimum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+			this.numud_width.Name = "numud_width";
+			this.numud_width.Size = new System.Drawing.Size(110, 24);
+			this.numud_width.TabIndex = 11;
+			this.numud_width.Value = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+			// 
+			// numud_height
+			// 
+			this.numud_height.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.numud_height.Location = new System.Drawing.Point(637, 268);
+			this.numud_height.Maximum = new decimal(new int[] {
+            9500,
+            0,
+            0,
+            0});
+			this.numud_height.Minimum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+			this.numud_height.Name = "numud_height";
+			this.numud_height.Size = new System.Drawing.Size(110, 24);
+			this.numud_height.TabIndex = 12;
+			this.numud_height.Value = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+			// 
+			// chk_useCustom_ScreenRes_forRDP
+			// 
+			this.chk_useCustom_ScreenRes_forRDP.AutoSize = true;
+			this.chk_useCustom_ScreenRes_forRDP.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+			this.chk_useCustom_ScreenRes_forRDP.Location = new System.Drawing.Point(471, 235);
+			this.chk_useCustom_ScreenRes_forRDP.Name = "chk_useCustom_ScreenRes_forRDP";
+			this.chk_useCustom_ScreenRes_forRDP.Size = new System.Drawing.Size(214, 20);
+			this.chk_useCustom_ScreenRes_forRDP.TabIndex = 14;
+			this.chk_useCustom_ScreenRes_forRDP.Text = "useCustom ScreenRes forRDP";
+			this.chk_useCustom_ScreenRes_forRDP.UseVisualStyleBackColor = true;
+			this.chk_useCustom_ScreenRes_forRDP.CheckedChanged += new System.EventHandler(this.chk_useCustom_ScreenRes_forRDP_CheckedChanged);
+			// 
+			// numud_dpi_scaleFactor
+			// 
+			this.numud_dpi_scaleFactor.DecimalPlaces = 2;
+			this.numud_dpi_scaleFactor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.numud_dpi_scaleFactor.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+			this.numud_dpi_scaleFactor.Location = new System.Drawing.Point(617, 322);
+			this.numud_dpi_scaleFactor.Maximum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+			this.numud_dpi_scaleFactor.Minimum = new decimal(new int[] {
+            50,
+            0,
+            0,
+            131072});
+			this.numud_dpi_scaleFactor.Name = "numud_dpi_scaleFactor";
+			this.numud_dpi_scaleFactor.Size = new System.Drawing.Size(92, 24);
+			this.numud_dpi_scaleFactor.TabIndex = 15;
+			this.numud_dpi_scaleFactor.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.ForeColor = System.Drawing.Color.LightGray;
+			this.label5.Location = new System.Drawing.Point(491, 326);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(112, 16);
+			this.label5.TabIndex = 16;
+			this.label5.Text = "DPI - ScaleFactor";
+			// 
+			// bt_apply_customRes
+			// 
+			this.bt_apply_customRes.Location = new System.Drawing.Point(494, 396);
+			this.bt_apply_customRes.Name = "bt_apply_customRes";
+			this.bt_apply_customRes.Size = new System.Drawing.Size(151, 37);
+			this.bt_apply_customRes.TabIndex = 17;
+			this.bt_apply_customRes.Text = "apply customRes";
+			this.bt_apply_customRes.UseVisualStyleBackColor = true;
+			this.bt_apply_customRes.Click += new System.EventHandler(this.bt_apply_customRes_Click);
+			// 
 			// Form1
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(28)))), ((int)(((byte)(28)))));
-			this.ClientSize = new System.Drawing.Size(817, 374);
+			this.ClientSize = new System.Drawing.Size(817, 548);
+			this.Controls.Add(this.bt_apply_customRes);
+			this.Controls.Add(this.label5);
+			this.Controls.Add(this.numud_dpi_scaleFactor);
+			this.Controls.Add(this.chk_useCustom_ScreenRes_forRDP);
+			this.Controls.Add(this.numud_height);
+			this.Controls.Add(this.numud_width);
 			this.Controls.Add(this.label4);
 			this.Controls.Add(this.picBox_taskbarPrev);
 			this.Controls.Add(this.label1);
@@ -193,6 +315,9 @@ namespace hardwareMonitor_atTaskbar
 			this.Text = "Speed Monitor";
 			this.Load += new System.EventHandler(this.Form1_Load);
 			((System.ComponentModel.ISupportInitialize)(this.picBox_taskbarPrev)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numud_width)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numud_height)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numud_dpi_scaleFactor)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -213,6 +338,12 @@ namespace hardwareMonitor_atTaskbar
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.PictureBox picBox_taskbarPrev;
 		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.NumericUpDown numud_width;
+		private System.Windows.Forms.NumericUpDown numud_height;
+		private System.Windows.Forms.CheckBox chk_useCustom_ScreenRes_forRDP;
+		private System.Windows.Forms.NumericUpDown numud_dpi_scaleFactor;
+		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.Button bt_apply_customRes;
 	}
 }
 

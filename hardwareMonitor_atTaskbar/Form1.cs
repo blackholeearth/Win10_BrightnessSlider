@@ -91,12 +91,53 @@ namespace hardwareMonitor_atTaskbar
 			var mi_pos = trayContextMenuStrip.Items.Add("Toggle Location: Left/Right", null,
 				(s1, e1) => { TaskbarDrawer.location_AtRight = !TaskbarDrawer.location_AtRight; });
 
+			var mi_detechScreenRes = trayContextMenuStrip.Items.Add("Detect Screen Change / RDP", null, (s1, e1) => DetectScreenChange_RDP());
 			var mi_hide = trayContextMenuStrip.Items.Add("Show/Hide", null, (s1, e1) => Toggle_ShowHide());
 			var mi_sep1 = trayContextMenuStrip.Items.Add("-");
 			var mi_exit = trayContextMenuStrip.Items.Add("Exit", null, ExitMenuItem_Click);
 			appNotifyIcon.Visible = true;
 
 			appNotifyIcon.ContextMenuStrip = trayContextMenuStrip;
+
+
+		}
+
+		string GetDeviceDpi_ofMonitor_ofThisControl() 
+		{
+			float dx, dy;
+
+			Graphics g = this.CreateGraphics();
+			try
+			{
+				dx = g.DpiX;
+				dy = g.DpiY;
+			}
+			finally
+			{
+				g.Dispose();
+			}
+
+			return $"{dx}, {dy}";
+		}
+
+		private void DetectScreenChange_RDP()
+		{
+			var virtSize = "virtSize:  " + SystemInformation.VirtualScreen.Size ;
+			var scrAtMousePos = "screen at cursor Pos:  " + Screen.FromPoint(Cursor.Position).Bounds.Size;
+
+			var GetSizeRect_taskbar = "dllimport_GetSizeRect (Taskbar): "+ _drawer.last__taskbarRECT_backupForDGB.ToString();
+			var GetHDC_ofscreen = "dllimport_GetSizeRect (Taskbar): "+ _drawer.last__getHDC_graphics;
+			var Getdpi_this = "GetDeviceDpi_ofMonitor_ofThisControl: " + GetDeviceDpi_ofMonitor_ofThisControl();
+			MessageBox.Show(@$"
+{Getdpi_this}  
+{virtSize}  
+{scrAtMousePos}  
+
+{GetSizeRect_taskbar}  
+
+{GetHDC_ofscreen}
+
+");
 		}
 
 		private void Toggle_ShowHide()
@@ -466,6 +507,27 @@ namespace hardwareMonitor_atTaskbar
 			}
 
 			return valueText;
+		}
+
+		private void chk_useCustom_ScreenRes_forRDP_CheckedChanged(object sender, EventArgs e)
+		{
+			//var chkx = sender as CheckBox;
+			//var useCustomRes = chkx.Checked;
+
+			TaskbarDrawer.use_CustomScreenSize = chk_useCustom_ScreenRes_forRDP.Checked;
+
+			TaskbarDrawer.myPC_ScrRes_Height = (int)numud_height.Value;
+			TaskbarDrawer.myPC_ScrRes_Width = (int)numud_width.Value;
+			TaskbarDrawer.myPC_scaleFactor = (float)numud_dpi_scaleFactor.Value;
+		}
+
+		private void bt_apply_customRes_Click(object sender, EventArgs e)
+		{
+			TaskbarDrawer.use_CustomScreenSize = chk_useCustom_ScreenRes_forRDP.Checked;
+
+			TaskbarDrawer.myPC_ScrRes_Height = (int)numud_height.Value;
+			TaskbarDrawer.myPC_ScrRes_Width = (int)numud_width.Value;
+			TaskbarDrawer.myPC_scaleFactor = (float)numud_dpi_scaleFactor.Value;
 		}
 
 

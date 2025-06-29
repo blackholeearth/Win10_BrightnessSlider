@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Windows.Forms; // For Timer, not for drawing on taskbar
 
 public class TaskbarDrawer
 {
@@ -75,6 +74,16 @@ public class TaskbarDrawer
 
 	}
 
+	public RECT last__taskbarRECT_backupForDGB;
+	public string last__getHDC_graphics ="";
+	
+	public static int myPC_ScrRes_Width = 1920;
+	public static int myPC_ScrRes_Height = 1080;
+	public static float myPC_scaleFactor = 1.0f;
+	public static bool use_CustomScreenSize = false;
+	//var myRDPed_pc_ScrRes_Width
+
+
 	/// <summary>
 	/// cant draw directly on shelltray wind its not visible...
 	/// </summary>
@@ -102,6 +111,7 @@ public class TaskbarDrawer
 			GetWindowRect(_taskbarHandle , out taskbarRect);
 			GetWindowRect(_trayAreaHandle, out trayRect);
 
+			last__taskbarRECT_backupForDGB = taskbarRect;
 
 
 			//--- is taskbar visible
@@ -154,17 +164,69 @@ public class TaskbarDrawer
 				System.Diagnostics.Debug.WriteLine("TaskbarDrawer: Target draw area on taskbar is obscured. Drawing paused.");
 				return; // Skip drawing
 			}
-			
+
+
+			//if RDP
+			//convert logical Winfomrm
+			// 2. CONVERT IT! This is the critical step.
+			// We use our form's handle (this.Handle) to get the correct DPI context.
+			Rectangle physicalRect = DpiConverter.ToHdcUsableRect(rectangle_Final, _taskbarHandle);
 
 			using (Graphics g = Graphics.FromHdc(hdc)) // Can use Graphics object if you prefer
 			{
+				last__getHDC_graphics =
+@$"  
+::last__getHDC_graphics:::
+
+dpi: {g.DpiX +","+ g.DpiY}
+visible ClipBounds: {g.VisibleClipBounds}
+
+taskbarRect:{rectangle_Final}
+DpiConverter.ToHdcUsableRect taskbarRect:{physicalRect}
+";
 				//this works
 				//g.FillRectangle(Brushes.Green, 0, 0, 50, 50);
 				if (LatestImg != null)
 				{
 					//g.DrawImage(LatestImg, 0, 0);
 					//g.DrawRectangle(Pens.Red, rectangle_Final.X, rectangle_Final.Y, 200, LatestImg.Height);
+					
+					//works 
+					if(!use_CustomScreenSize)
 					g.DrawImage(LatestImg, rectangle_Final.X, rectangle_Final.Y, LatestImg.Width, LatestImg.Height);
+
+
+					//--------- if RDP
+					if (use_CustomScreenSize)
+					{
+
+						////g.DrawImage(LatestImg, physicalRect.X, physicalRect.Y, LatestImg.Width, LatestImg.Height);
+						//g.ResetClip(); //even with resetClip - Cannot draw outside false reported Screen's bounds.
+						//g.DrawImage(LatestImg, 
+						//	myPC_ScrRes_Width * myPC_scaleFactor - (int)(LatestImg.Width* myPC_scaleFactor), 
+						//	myPC_ScrRes_Height * myPC_scaleFactor - (int)(LatestImg.Height* myPC_scaleFactor),
+						//	(int)(LatestImg.Width * myPC_scaleFactor),
+						//	(int)(LatestImg.Height * myPC_scaleFactor) 
+						//	);
+
+						//WORKS ON RDP FullScreen -- Yes
+						//in this APP -> settings :::
+						//-- use local PC resolution.  
+						//-- always set dpi to 1;  
+
+						var left_OR_Right_pos = (location_AtRight) ? myPC_ScrRes_Width : 0;
+
+						var recttest = new Rectangle(
+							(int)(left_OR_Right_pos * myPC_scaleFactor - (int)(LatestImg.Width * myPC_scaleFactor)),
+							(int)(myPC_ScrRes_Height * myPC_scaleFactor - (int)(LatestImg.Height * myPC_scaleFactor)),
+							(int)(LatestImg.Width * myPC_scaleFactor),
+							(int)(LatestImg.Height * myPC_scaleFactor)
+							);
+
+						NativeMethods.DrawImageRawGDI(LatestImg,recttest);
+					}
+
+
 				}
 
 
@@ -241,6 +303,8 @@ public class TaskbarDrawer
 
 		public int Width => Right - Left;
 		public int Height => Bottom - Top;
+
+		public string ToString() => $"Left:{Left}, Top:{Top}, -  Right:{Right}, Bottom:{Bottom} ";
 	}
 
 	// Ensure GetParent P/Invoke is available:
@@ -349,8 +413,130 @@ public class TaskbarDrawer
 
 
 
+
+
+	
+
+
+
 }
 
 
- 
- 
+
+
+
+
+public static class NativeMethods
+{
+	// ... (Keep GetDC, ReleaseDC, DeleteObject from the previous answer) ...
+	[DllImport("user32.dll")]
+	public static extern IntPtr GetDC(IntPtr hWnd);
+
+	[DllImport("user32.dll")]
+	public static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+	[DllImport("gdi32.dll")]
+	public static extern bool DeleteObject(IntPtr hObject);
+
+	// NEW FUNCTIONS FOR DRAWING IMAGES
+	[DllImport("gdi32.dll")]
+	public static extern IntPtr CreateCompatibleDC(IntPtr hDC);
+
+	[DllImport("gdi32.dll")]
+	public static extern bool DeleteDC(IntPtr hDC);
+
+	[DllImport("gdi32.dll")]
+	public static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
+
+	[DllImport("gdi32.dll")]
+	public static extern bool BitBlt(IntPtr hdcDest, int nXDest, int nYDest, int nWidth, int nHeight,
+									 IntPtr hdcSrc, int nXSrc, int nYSrc, TernaryRasterOperations dwRop);
+
+	public enum TernaryRasterOperations : uint
+	{
+		/// <summary>dest = source</summary>
+		SRCCOPY = 0x00CC0020
+	}
+
+
+
+
+
+
+	//--------draw image
+
+	/// <summary>
+	/// Draws a Bitmap onto the screen using raw GDI, bypassing GDI+ clipping issues.
+	/// </summary>
+	/// <param name="image">The Bitmap to draw.</param>
+	/// <param name="physicalRect">The destination rectangle in PHYSICAL pixel coordinates.</param>
+	public static void DrawImageRawGDI(Bitmap image, Rectangle physicalRect)
+	{
+		IntPtr screenDc = IntPtr.Zero;
+		IntPtr memDc = IntPtr.Zero;
+		IntPtr hBitmap = IntPtr.Zero;
+		IntPtr hOldBitmap = IntPtr.Zero;
+
+		try
+		{
+			// 1. Get the screen device context
+			screenDc = NativeMethods.GetDC(IntPtr.Zero);
+
+			// 2. Create a memory DC compatible with the screen
+			memDc = NativeMethods.CreateCompatibleDC(screenDc);
+
+			// 3. Get a GDI handle to our managed bitmap
+			// NOTE: This creates a DIB (Device-Independent Bitmap) which is what we want.
+			hBitmap = image.GetHbitmap();
+
+			// 4. Select the bitmap into the memory DC.
+			// The old bitmap handle must be saved to restore it later.
+			hOldBitmap = NativeMethods.SelectObject(memDc, hBitmap);
+
+			// 5. Blit the image from the memory DC to the screen DC
+			NativeMethods.BitBlt(
+				screenDc,                      // Destination DC
+				physicalRect.X,                // Destination X
+				physicalRect.Y,                // Destination Y
+				physicalRect.Width,            // Width
+				physicalRect.Height,           // Height
+				memDc,                         // Source DC (our memory DC)
+				0,                             // Source X
+				0,                             // Source Y
+				NativeMethods.TernaryRasterOperations.SRCCOPY // Raster operation: simple copy
+			);
+		}
+		finally
+		{
+			// 6. CLEAN UP - This order is CRITICAL
+			if (memDc != IntPtr.Zero)
+			{
+				// Restore the original bitmap to the memory DC
+				if (hOldBitmap != IntPtr.Zero)
+				{
+					NativeMethods.SelectObject(memDc, hOldBitmap);
+				}
+				// Delete the memory DC
+				NativeMethods.DeleteDC(memDc);
+			}
+
+			// Release the screen DC
+			if (screenDc != IntPtr.Zero)
+			{
+				NativeMethods.ReleaseDC(IntPtr.Zero, screenDc);
+			}
+
+			// Delete the GDI bitmap handle
+			if (hBitmap != IntPtr.Zero)
+			{
+				NativeMethods.DeleteObject(hBitmap);
+			}
+		}
+	}
+
+
+
+
+
+
+}
