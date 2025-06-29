@@ -50,10 +50,12 @@ namespace hardwareMonitor_atTaskbar
 			this.numud_dpi_scaleFactor = new System.Windows.Forms.NumericUpDown();
 			this.label5 = new System.Windows.Forms.Label();
 			this.bt_apply_customRes = new System.Windows.Forms.Button();
+			this.panel1 = new System.Windows.Forms.Panel();
 			((System.ComponentModel.ISupportInitialize)(this.picBox_taskbarPrev)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numud_width)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numud_height)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numud_dpi_scaleFactor)).BeginInit();
+			this.panel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// panelCpuGraph
@@ -183,7 +185,7 @@ namespace hardwareMonitor_atTaskbar
 			// numud_width
 			// 
 			this.numud_width.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.numud_width.Location = new System.Drawing.Point(494, 268);
+			this.numud_width.Location = new System.Drawing.Point(47, 48);
 			this.numud_width.Maximum = new decimal(new int[] {
             9500,
             0,
@@ -195,7 +197,7 @@ namespace hardwareMonitor_atTaskbar
             0,
             0});
 			this.numud_width.Name = "numud_width";
-			this.numud_width.Size = new System.Drawing.Size(110, 24);
+			this.numud_width.Size = new System.Drawing.Size(92, 24);
 			this.numud_width.TabIndex = 11;
 			this.numud_width.Value = new decimal(new int[] {
             500,
@@ -206,7 +208,7 @@ namespace hardwareMonitor_atTaskbar
 			// numud_height
 			// 
 			this.numud_height.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.numud_height.Location = new System.Drawing.Point(637, 268);
+			this.numud_height.Location = new System.Drawing.Point(190, 48);
 			this.numud_height.Maximum = new decimal(new int[] {
             9500,
             0,
@@ -218,7 +220,7 @@ namespace hardwareMonitor_atTaskbar
             0,
             0});
 			this.numud_height.Name = "numud_height";
-			this.numud_height.Size = new System.Drawing.Size(110, 24);
+			this.numud_height.Size = new System.Drawing.Size(92, 24);
 			this.numud_height.TabIndex = 12;
 			this.numud_height.Value = new decimal(new int[] {
             500,
@@ -230,7 +232,7 @@ namespace hardwareMonitor_atTaskbar
 			// 
 			this.chk_useCustom_ScreenRes_forRDP.AutoSize = true;
 			this.chk_useCustom_ScreenRes_forRDP.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-			this.chk_useCustom_ScreenRes_forRDP.Location = new System.Drawing.Point(471, 235);
+			this.chk_useCustom_ScreenRes_forRDP.Location = new System.Drawing.Point(24, 15);
 			this.chk_useCustom_ScreenRes_forRDP.Name = "chk_useCustom_ScreenRes_forRDP";
 			this.chk_useCustom_ScreenRes_forRDP.Size = new System.Drawing.Size(214, 20);
 			this.chk_useCustom_ScreenRes_forRDP.TabIndex = 14;
@@ -247,7 +249,7 @@ namespace hardwareMonitor_atTaskbar
             0,
             0,
             65536});
-			this.numud_dpi_scaleFactor.Location = new System.Drawing.Point(617, 322);
+			this.numud_dpi_scaleFactor.Location = new System.Drawing.Point(47, 127);
 			this.numud_dpi_scaleFactor.Maximum = new decimal(new int[] {
             5,
             0,
@@ -271,7 +273,7 @@ namespace hardwareMonitor_atTaskbar
 			// 
 			this.label5.AutoSize = true;
 			this.label5.ForeColor = System.Drawing.Color.LightGray;
-			this.label5.Location = new System.Drawing.Point(491, 326);
+			this.label5.Location = new System.Drawing.Point(44, 102);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(112, 16);
 			this.label5.TabIndex = 16;
@@ -279,7 +281,7 @@ namespace hardwareMonitor_atTaskbar
 			// 
 			// bt_apply_customRes
 			// 
-			this.bt_apply_customRes.Location = new System.Drawing.Point(494, 396);
+			this.bt_apply_customRes.Location = new System.Drawing.Point(170, 177);
 			this.bt_apply_customRes.Name = "bt_apply_customRes";
 			this.bt_apply_customRes.Size = new System.Drawing.Size(151, 37);
 			this.bt_apply_customRes.TabIndex = 17;
@@ -287,18 +289,27 @@ namespace hardwareMonitor_atTaskbar
 			this.bt_apply_customRes.UseVisualStyleBackColor = true;
 			this.bt_apply_customRes.Click += new System.EventHandler(this.bt_apply_customRes_Click);
 			// 
+			// panel1
+			// 
+			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.panel1.Controls.Add(this.chk_useCustom_ScreenRes_forRDP);
+			this.panel1.Controls.Add(this.bt_apply_customRes);
+			this.panel1.Controls.Add(this.numud_width);
+			this.panel1.Controls.Add(this.label5);
+			this.panel1.Controls.Add(this.numud_height);
+			this.panel1.Controls.Add(this.numud_dpi_scaleFactor);
+			this.panel1.Location = new System.Drawing.Point(460, 238);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(340, 229);
+			this.panel1.TabIndex = 18;
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(28)))), ((int)(((byte)(28)))));
-			this.ClientSize = new System.Drawing.Size(817, 548);
-			this.Controls.Add(this.bt_apply_customRes);
-			this.Controls.Add(this.label5);
-			this.Controls.Add(this.numud_dpi_scaleFactor);
-			this.Controls.Add(this.chk_useCustom_ScreenRes_forRDP);
-			this.Controls.Add(this.numud_height);
-			this.Controls.Add(this.numud_width);
+			this.ClientSize = new System.Drawing.Size(857, 532);
+			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.label4);
 			this.Controls.Add(this.picBox_taskbarPrev);
 			this.Controls.Add(this.label1);
@@ -318,6 +329,8 @@ namespace hardwareMonitor_atTaskbar
 			((System.ComponentModel.ISupportInitialize)(this.numud_width)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numud_height)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numud_dpi_scaleFactor)).EndInit();
+			this.panel1.ResumeLayout(false);
+			this.panel1.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -344,6 +357,7 @@ namespace hardwareMonitor_atTaskbar
 		private System.Windows.Forms.NumericUpDown numud_dpi_scaleFactor;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.Button bt_apply_customRes;
+		private System.Windows.Forms.Panel panel1;
 	}
 }
 

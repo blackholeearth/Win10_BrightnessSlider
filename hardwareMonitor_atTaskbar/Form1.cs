@@ -91,8 +91,8 @@ namespace hardwareMonitor_atTaskbar
 			var mi_pos = trayContextMenuStrip.Items.Add("Toggle Location: Left/Right", null,
 				(s1, e1) => { TaskbarDrawer.location_AtRight = !TaskbarDrawer.location_AtRight; });
 
-			var mi_detechScreenRes = trayContextMenuStrip.Items.Add("Detect Screen Change / RDP", null, (s1, e1) => DetectScreenChange_RDP());
-			var mi_hide = trayContextMenuStrip.Items.Add("Show/Hide", null, (s1, e1) => Toggle_ShowHide());
+			var mi_detechScreenRes = trayContextMenuStrip.Items.Add("info -> Screen Resolution/Dpi", null, (s1, e1) => DetectScreenChange_RDP());
+			var mi_hide = trayContextMenuStrip.Items.Add("Settings Show/Hide", null, (s1, e1) => Toggle_ShowHide());
 			var mi_sep1 = trayContextMenuStrip.Items.Add("-");
 			var mi_exit = trayContextMenuStrip.Items.Add("Exit", null, ExitMenuItem_Click);
 			appNotifyIcon.Visible = true;
