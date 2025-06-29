@@ -166,11 +166,11 @@ public class TaskbarDrawer
 			}
 
 
-			//if RDP
-			//convert logical Winfomrm
-			// 2. CONVERT IT! This is the critical step.
-			// We use our form's handle (this.Handle) to get the correct DPI context.
-			Rectangle physicalRect = DpiConverter.ToHdcUsableRect(rectangle_Final, _taskbarHandle);
+			////if RDP
+			////convert logical Winfomrm
+			//// 2. CONVERT IT! This is the critical step.
+			//// We use our form's handle (this.Handle) to get the correct DPI context.  -doesnt work for RDP
+			//Rectangle physicalRect = DpiConverter.ToHdcUsableRect(rectangle_Final, _taskbarHandle);
 
 			using (Graphics g = Graphics.FromHdc(hdc)) // Can use Graphics object if you prefer
 			{
@@ -182,7 +182,6 @@ dpi: {g.DpiX +","+ g.DpiY}
 visible ClipBounds: {g.VisibleClipBounds}
 
 taskbarRect:{rectangle_Final}
-DpiConverter.ToHdcUsableRect taskbarRect:{physicalRect}
 ";
 				//this works
 				//g.FillRectangle(Brushes.Green, 0, 0, 50, 50);
