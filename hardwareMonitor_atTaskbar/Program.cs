@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Win10_BrightnessSlider;
 
 namespace hardwareMonitor_atTaskbar
 {
