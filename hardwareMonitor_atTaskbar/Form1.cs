@@ -523,11 +523,21 @@ namespace hardwareMonitor_atTaskbar
 
 		private void bt_apply_customRes_Click(object sender, EventArgs e)
 		{
+			
+			chk_useCustom_ScreenRes_forRDP.Checked = true;
+
 			TaskbarDrawer.use_CustomScreenSize = chk_useCustom_ScreenRes_forRDP.Checked;
 
-			TaskbarDrawer.myPC_ScrRes_Height = (int)numud_height.Value;
 			TaskbarDrawer.myPC_ScrRes_Width = (int)numud_width.Value;
+			TaskbarDrawer.myPC_ScrRes_Height = (int)numud_height.Value;
 			TaskbarDrawer.myPC_scaleFactor = (float)numud_dpi_scaleFactor.Value;
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			numud_width.Value = 1460;
+			numud_height.Value=1069;
+			bt_apply_customRes_Click(null, null);
 		}
 
 
