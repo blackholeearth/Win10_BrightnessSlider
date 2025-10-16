@@ -94,6 +94,7 @@ namespace hardwareMonitor_atTaskbar
 			var mi_detechScreenRes = cms_Tray.Items.Add("info -> Screen Resolution/Dpi", null, (s1, e1) => DetectScreenChange_RDP());
 			var mi_hide = cms_Tray.Items.Add("Settings Show/Hide", null, (s1, e1) => Toggle_ShowHide());
 			var mi_sep1 = cms_Tray.Items.Add("-");
+			var mi_restart = cms_Tray.Items.Add("Restart", null, (snd, ev) => { Application.Restart(); });
 			var mi_exit = cms_Tray.Items.Add("Exit", null, ExitMenuItem_Click);
 
 
