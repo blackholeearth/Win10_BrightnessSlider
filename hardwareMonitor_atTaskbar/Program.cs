@@ -21,7 +21,7 @@ namespace hardwareMonitor_atTaskbar
 
 
 			//Application.Run(new GuestForm());
-			Application.Run(new Form1());
+			Application.Run(new Form1_hw());
 		}
 	}
 }

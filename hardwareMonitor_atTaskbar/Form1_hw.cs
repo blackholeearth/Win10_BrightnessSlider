@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace hardwareMonitor_atTaskbar
 {
-	public partial class Form1 : Form
+	public partial class Form1_hw : Form
 	{
 		// Performance Counters
 		private PerformanceCounter _cpuCounter;
@@ -38,7 +38,7 @@ namespace hardwareMonitor_atTaskbar
 		private Queue<float> _networkHistory = new();
 		// --- END NEW ---
 
-		private ContextMenuStrip trayContextMenuStrip = new();
+		private ContextMenuStrip cms_Tray = new();
 		private Timer updateTimer = new Timer();
 
 		public TaskbarDrawer _drawer = new();
@@ -48,7 +48,7 @@ namespace hardwareMonitor_atTaskbar
 		//public OverlayForm _overlayForm = new(null);
 
 
-		public Form1()
+		public Form1_hw()
 		{
 
 			InitializeComponent();
@@ -88,16 +88,18 @@ namespace hardwareMonitor_atTaskbar
 			}
 			catch (Exception ex) { Console.WriteLine("Error setting notify icon: " + ex.Message); }
 
-			var mi_pos = trayContextMenuStrip.Items.Add("Toggle Location: Left/Right", null,
+			var mi_togglepos = cms_Tray.Items.Add("Toggle Location: Left/Right", null,
 				(s1, e1) => { TaskbarDrawer.location_AtRight = !TaskbarDrawer.location_AtRight; });
 
-			var mi_detechScreenRes = trayContextMenuStrip.Items.Add("info -> Screen Resolution/Dpi", null, (s1, e1) => DetectScreenChange_RDP());
-			var mi_hide = trayContextMenuStrip.Items.Add("Settings Show/Hide", null, (s1, e1) => Toggle_ShowHide());
-			var mi_sep1 = trayContextMenuStrip.Items.Add("-");
-			var mi_exit = trayContextMenuStrip.Items.Add("Exit", null, ExitMenuItem_Click);
+			var mi_detechScreenRes = cms_Tray.Items.Add("info -> Screen Resolution/Dpi", null, (s1, e1) => DetectScreenChange_RDP());
+			var mi_hide = cms_Tray.Items.Add("Settings Show/Hide", null, (s1, e1) => Toggle_ShowHide());
+			var mi_sep1 = cms_Tray.Items.Add("-");
+			var mi_exit = cms_Tray.Items.Add("Exit", null, ExitMenuItem_Click);
+
+
 			appNotifyIcon.Visible = true;
 
-			appNotifyIcon.ContextMenuStrip = trayContextMenuStrip;
+			appNotifyIcon.ContextMenuStrip = cms_Tray;
 
 
 		}

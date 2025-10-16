@@ -2,7 +2,7 @@
 
 namespace hardwareMonitor_atTaskbar
 {
-	partial class Form1
+	partial class Form1_hw
 	{
 		/// <summary>
 		/// Required designer variable.
