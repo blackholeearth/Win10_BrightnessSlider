@@ -178,7 +178,7 @@ namespace Win10_BrightnessSlider
         public void Slider_SetBrightness(int value  )
         {
             var safevalue = (int)MathFn.Clamp(value, trackBar1.Minimum, trackBar1.Maximum); //without this. trackbar goes into negatives.
-            var val = riScreen.SetBrightness(safevalue, true);
+            var val = riScreen.SetBrightness(safevalue, false); // false = treat as final value, not dragging
             if (val != -1)
             {
                 lbl_value.Text = val + "";

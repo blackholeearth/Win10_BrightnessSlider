@@ -99,7 +99,7 @@ v1.8.23
     * migrated globalMouse to  **TolikPylypchuk/SharpHook**
        
 */
-		static string version = "1.8.27";
+		static string version = "1.9.0";
 
         /// <summary>
         /// is win11
@@ -204,6 +204,9 @@ v1.8.23
         }
 
         private IKeyboardMouseEvents m_GlobalHook;
+        private System.Windows.Forms.Timer schedulerTimer;
+        private DateTime lastScheduleCheck = DateTime.MinValue;
+
         private void Form1_Load(object sender, EventArgs e)
         {
             eSetVis(false);
@@ -250,6 +253,9 @@ v1.8.23
             GUI_Update__CtxMenu_isRunAtStartup();
 
             //GUI_Update_StatesOnControls(); //also set CtxMenu Run At StartUp
+
+            // Initialize scheduler AFTER monitors are ready
+            InitializeScheduler();
 
             notifyIcon_bright.Text = "Win10_BrightnessSlider";
         }
@@ -674,6 +680,18 @@ v1.8.23
                 //foreach (Control ctl in fLayPnl1.Controls){ ctl.Dispose(); }
                 fLayPnl1.Controls.Clear();
 
+                // Add "All Monitors" preset buttons at top if preset mode is enabled and multiple monitors
+                if (settings.Show_PresetButtons && riScreens.Count > 1)
+                {
+                    var allMonitorsControl = new Gui.uc_AllMonitorsPresets()
+                    {
+                        Margin = Padding.Empty,
+                        BackColor = BackColor1,
+                    };
+                    allMonitorsControl.SetGUIColors(BackColor1, TextColor1, BorderColor1);
+                    fLayPnl1.Controls.Add(allMonitorsControl);
+                }
+
                 foreach (var riscrX in riScreens)
                 {
                     //uc_brSlider2 ucSldr = GetSlider2_UC(riscrX);
@@ -684,6 +702,8 @@ v1.8.23
                         ucSldr = newSlider3_wButton_UC(riscrX);
                     else if (settings.Show_PlusMinusButtons_v2)
                         ucSldr = newSlider3_buttonsOnly_UC(riscrX);
+                    else if (settings.Show_PresetButtons)
+                        ucSldr = newSlider3_wPresets_UC(riscrX);
                     else
                         ucSldr = newSlider3_UC(riscrX);
 
@@ -806,12 +826,26 @@ v1.8.23
             ucSldr.riScreen = riscrX;
 
 
-            //------additional for 
+            //------additional for
             ucSldr.SetGUIColors(BackColor1, TextColor1, BorderColor1);
             //ucSldr_wb._uc_brSlider3.Parent = this;
             this.Width = ucSldr.Width;
 
             return ucSldr;
+        }
+        private Control newSlider3_wPresets_UC(RichInfoScreen riscrX)
+        {
+            var ucSldr_wPresets = new Gui.uc_brSlider3_wPresets()
+            {
+                Margin = Padding.Empty,
+                BackColor = BackColor1,
+            };
+
+            var ucSldr = (uc_brSlider3)newSlider3_UC(riscrX);
+            ucSldr_wPresets.SetGUIColors(BackColor1, TextColor1, BorderColor1, ucSldr);
+            this.Width = ucSldr_wPresets.Width;
+
+            return ucSldr_wPresets;
         }
 
 
@@ -844,10 +878,275 @@ v1.8.23
         }
 
 
+        private ToolStripMenuItem CreateScheduledBrightnessMenuItem()
+        {
+            var settings = Settings_json.Get();
+            var mi_scheduler = new ToolStripMenuItem("Auto-Dim Schedule");
+            mi_scheduler.Checked = settings.EnableScheduledBrightness;
+            mi_scheduler.ToolTipText = "Automatically adjust brightness at scheduled times";
+
+            mi_scheduler.Click += (snd, ev) =>
+            {
+                var _mi = snd as ToolStripMenuItem;
+                _mi.Checked = !_mi.Checked;
+
+                Settings_json.Update(st =>
+                {
+                    st.EnableScheduledBrightness = _mi.Checked;
+
+                    // Add default schedules if none exist
+                    if (_mi.Checked && (st.BrightnessSchedules == null || st.BrightnessSchedules.Count == 0))
+                    {
+                        st.BrightnessSchedules = new List<BrightnessSchedule>
+                        {
+                            new BrightnessSchedule { Time = "23:00", BrightnessPercent = 25, Enabled = true },  // 11 PM → 25%
+                            new BrightnessSchedule { Time = "07:00", BrightnessPercent = 100, Enabled = true }  // 7 AM → 100%
+                        };
+                    }
+                });
+
+                if (_mi.Checked)
+                {
+                    MessageBox.Show(
+                        "Scheduled brightness enabled!\n\n" +
+                        "Default schedules:\n" +
+                        "• 11:00 PM → 25% (dim for night)\n" +
+                        "• 7:00 AM → 100% (bright for morning)\n\n" +
+                        "Use 'Edit Schedules' to customize times and brightness levels.",
+                        "Auto-Dim Schedule",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+            };
+
+            return mi_scheduler;
+        }
+
+        private ToolStripMenuItem CreateEditSchedulesMenuItem()
+        {
+            var mi_editSchedules = new ToolStripMenuItem("Edit Schedules...");
+            mi_editSchedules.ToolTipText = "Open schedule editor to customize brightness schedules";
+
+            mi_editSchedules.Click += (snd, ev) =>
+            {
+                using (var editor = new Gui.ScheduleEditor())
+                {
+                    editor.ShowDialog();
+                }
+            };
+
+            return mi_editSchedules;
+        }
+
+        private void InitializeScheduler()
+        {
+            try
+            {
+                FileLogger.Log("InitializeScheduler: Starting...");
+
+                schedulerTimer = new System.Windows.Forms.Timer();
+                schedulerTimer.Interval = 60000; // Check every minute
+                schedulerTimer.Tick += SchedulerTimer_Tick;
+                schedulerTimer.Start();
+
+                FileLogger.Log("InitializeScheduler: Timer started, now calling CheckAndApplySchedulesAtStartup");
+
+                // Check schedules immediately on startup and apply current brightness if needed
+                CheckAndApplySchedulesAtStartup();
+
+                FileLogger.Log("InitializeScheduler: Completed successfully");
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Log("InitializeScheduler error: " + ex.Message + "\n" + ex.StackTrace);
+            }
+        }
+
+        private void SchedulerTimer_Tick(object sender, EventArgs e)
+        {
+            CheckAndApplySchedules();
+        }
+
+        private void CheckAndApplySchedules()
+        {
+            try
+            {
+                var settings = Settings_json.Get();
+                if (!settings.EnableScheduledBrightness || settings.BrightnessSchedules == null)
+                    return;
+
+                var now = DateTime.Now;
+                var currentTime = now.TimeOfDay;
+                var currentMinute = new TimeSpan(now.Hour, now.Minute, 0);
+
+                // Only check once per minute to avoid duplicate applications
+                if (lastScheduleCheck.Hour == now.Hour && lastScheduleCheck.Minute == now.Minute)
+                    return;
+
+                lastScheduleCheck = now;
+
+                // Check each schedule
+                foreach (var schedule in settings.BrightnessSchedules.Where(s => s.Enabled && s.AppliesToday()))
+                {
+                    var scheduleTime = schedule.GetTimeSpan();
+                    var scheduleMinute = new TimeSpan(scheduleTime.Hours, scheduleTime.Minutes, 0);
+
+                    if (scheduleMinute == currentMinute)
+                    {
+                        // Apply this schedule
+                        FileLogger.Log($"Applying scheduled brightness: {schedule.BrightnessPercent}% at {schedule.Time} ({schedule.GetDaysString()})");
+                        ApplyScheduledBrightness(schedule.BrightnessPercent);
+                        break; // Only apply one schedule per minute
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Log("CheckAndApplySchedules error: " + ex.Message);
+            }
+        }
+
+        private void CheckAndApplySchedulesAtStartup()
+        {
+            try
+            {
+                FileLogger.Log("CheckAndApplySchedulesAtStartup: Starting...");
+
+                var settings = Settings_json.Get();
+                FileLogger.Log($"CheckAndApplySchedulesAtStartup: EnableScheduledBrightness={settings.EnableScheduledBrightness}, ScheduleCount={settings.BrightnessSchedules?.Count ?? 0}");
+
+                if (!settings.EnableScheduledBrightness)
+                {
+                    FileLogger.Log("CheckAndApplySchedulesAtStartup: Scheduler is disabled");
+                    return;
+                }
+
+                if (settings.BrightnessSchedules == null || settings.BrightnessSchedules.Count == 0)
+                {
+                    FileLogger.Log("CheckAndApplySchedulesAtStartup: No schedules configured");
+                    return;
+                }
+
+                var now = DateTime.Now;
+                var currentTime = now.TimeOfDay;
+                var yesterday = now.AddDays(-1).DayOfWeek;
+                FileLogger.Log($"CheckAndApplySchedulesAtStartup: Current time is {now:HH:mm:ss} ({now.DayOfWeek})");
+
+                // Find the most recent schedule that should be active
+                BrightnessSchedule mostRecentSchedule = null;
+                TimeSpan? mostRecentTime = null;
+                bool foundTodaySchedule = false;
+
+                // First, check for schedules that have already passed TODAY
+                foreach (var schedule in settings.BrightnessSchedules.Where(s => s.Enabled))
+                {
+                    var appliesToday = schedule.AppliesToday();
+                    var scheduleTime = schedule.GetTimeSpan();
+                    FileLogger.Log($"CheckAndApplySchedulesAtStartup: Checking TODAY schedule {schedule.Time} → {schedule.BrightnessPercent}% - AppliesToday={appliesToday}, ScheduleTime={scheduleTime}, CurrentTime={currentTime}");
+
+                    if (!appliesToday)
+                        continue;
+
+                    // Check if this schedule has already passed today
+                    if (scheduleTime <= currentTime)
+                    {
+                        FileLogger.Log($"CheckAndApplySchedulesAtStartup: Schedule {schedule.Time} has passed today");
+                        foundTodaySchedule = true;
+                        // This schedule happened today already
+                        if (mostRecentTime == null || scheduleTime > mostRecentTime.Value)
+                        {
+                            mostRecentTime = scheduleTime;
+                            mostRecentSchedule = schedule;
+                            FileLogger.Log($"CheckAndApplySchedulesAtStartup: This is now the most recent schedule");
+                        }
+                    }
+                }
+
+                // If no schedules passed today yet, check YESTERDAY's schedules
+                if (!foundTodaySchedule)
+                {
+                    FileLogger.Log($"CheckAndApplySchedulesAtStartup: No schedules passed today yet, checking YESTERDAY ({yesterday})");
+
+                    foreach (var schedule in settings.BrightnessSchedules.Where(s => s.Enabled))
+                    {
+                        // Check if this schedule applied yesterday
+                        bool appliedYesterday = schedule.Days == null || schedule.Days.Count == 0 || schedule.Days.Count == 7 || schedule.Days.Contains(yesterday);
+                        var scheduleTime = schedule.GetTimeSpan();
+
+                        FileLogger.Log($"CheckAndApplySchedulesAtStartup: Checking YESTERDAY schedule {schedule.Time} → {schedule.BrightnessPercent}% - AppliedYesterday={appliedYesterday}");
+
+                        if (!appliedYesterday)
+                            continue;
+
+                        // Find the latest schedule from yesterday
+                        if (mostRecentTime == null || scheduleTime > mostRecentTime.Value)
+                        {
+                            mostRecentTime = scheduleTime;
+                            mostRecentSchedule = schedule;
+                            FileLogger.Log($"CheckAndApplySchedulesAtStartup: YESTERDAY schedule {schedule.Time} is now the most recent");
+                        }
+                    }
+                }
+
+                // If we found a schedule that should be in effect, apply it
+                if (mostRecentSchedule != null)
+                {
+                    FileLogger.Log($"Startup: Applying scheduled brightness from {mostRecentSchedule.Time}: {mostRecentSchedule.BrightnessPercent}% ({mostRecentSchedule.GetDaysString()})");
+
+                    // Delay slightly to ensure monitors are fully ready
+                    System.Threading.Thread.Sleep(500);
+
+                    ApplyScheduledBrightness(mostRecentSchedule.BrightnessPercent);
+                }
+                else
+                {
+                    FileLogger.Log("CheckAndApplySchedulesAtStartup: No applicable schedule found for current time");
+                }
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Log("CheckAndApplySchedulesAtStartup error: " + ex.Message + "\n" + ex.StackTrace);
+            }
+        }
+
+        private void ApplyScheduledBrightness(int brightness)
+        {
+            try
+            {
+                if (riScreens == null || riScreens.Count == 0)
+                    return;
+
+                // Apply to all monitors in parallel
+                var tasks = new List<Task>();
+                foreach (var riScreen in riScreens)
+                {
+                    var screen = riScreen;
+                    tasks.Add(Task.Run(() => screen.SetBrightness(brightness, false)));
+                }
+
+                Task.WaitAll(tasks.ToArray());
+
+                // Update UI on UI thread
+                this.Invoke((Action)(() =>
+                {
+                    GUI_Update__AllSliderControls();
+                    GUI_Update_NotifyIconText();
+                }));
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Log("ApplyScheduledBrightness error: " + ex.Message);
+            }
+        }
+
         //slider interface, 2 and 3
         private List<Iuc_brSlider> getUCSliderList()
         {
             return fLayPnl1.Controls.OfType<Iuc_brSlider>().ToList();
+        }
+        public bool HasAllMonitorsControl()
+        {
+            return fLayPnl1.Controls.OfType<Gui.uc_AllMonitorsPresets>().Any();
         }
         public void FixFormHeight()
         {
@@ -855,7 +1154,16 @@ v1.8.23
 
             try
             {
-                this.Height = ucSlderLi.Count() * ucSlderLi[0].Height;
+                int totalHeight = ucSlderLi.Count() * ucSlderLi[0].Height;
+
+                // Add height of All Monitors control if present
+                var allMonitorsControl = fLayPnl1.Controls.OfType<Gui.uc_AllMonitorsPresets>().FirstOrDefault();
+                if (allMonitorsControl != null)
+                {
+                    totalHeight += allMonitorsControl.Height;
+                }
+
+                this.Height = totalHeight;
             }
             catch (Exception ex)
             {
@@ -1176,9 +1484,10 @@ v1.8.23
             {
                 var text =
 @"
-Developer: blackholeearth 
+Developer: blackholeearth
+Contributors: SimplyAG (Preset Buttons, Scheduled Brightness, UI improvements)
 
-Official Site: 
+Official Site:
 https://github.com/blackholeearth/Win10_BrightnessSlider
 ";
                 MessageTextbox_Show(text);
@@ -1272,6 +1581,7 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
 
             var mi_ShowButtons = new ToolStripMenuItem("Show +/- Buttons wSlider");
             var mi_ShowButtons_v2 = new ToolStripMenuItem("Show +/- Buttons");
+            var mi_ShowPresetButtons = new ToolStripMenuItem("Show Preset Buttons");
 
             mi_ShowButtons.ToolTipText = "This is intended for TABLET  Users.";
             mi_ShowButtons.Checked = settingsX.Show_PlusMinusButtons;
@@ -1288,7 +1598,9 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
                     if (st.Show_PlusMinusButtons == true)
                     {
                         st.Show_PlusMinusButtons_v2 = false;
+                        st.Show_PresetButtons = false;
                         mi_ShowButtons_v2.Checked = false;
+                        mi_ShowPresetButtons.Checked = false;
                     }
                 });
 
@@ -1314,7 +1626,37 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
                     if (st.Show_PlusMinusButtons_v2 == true)
                     {
                         st.Show_PlusMinusButtons = false;
+                        st.Show_PresetButtons = false;
                         mi_ShowButtons.Checked = false;
+                        mi_ShowPresetButtons.Checked = false;
+                    }
+                });
+
+                //Application.Restart();
+                this.Width = new uc_brSlider3().Width;
+                Lightweight_Restart__Aka_PopulateSliders_ReapplyColors();
+                GUI_Update__AllSliderControls();
+                eSetVis(true);
+            };
+
+            mi_ShowPresetButtons.ToolTipText = "Quick preset buttons for 25%, 50%, 75%, 100% brightness";
+            mi_ShowPresetButtons.Checked = settingsX.Show_PresetButtons;
+            mi_ShowPresetButtons.Click += (snd, ev) =>
+            {
+                var _mix = snd as ToolStripMenuItem;
+                _mix.Checked = !_mix.Checked;
+
+                Settings_json.Update(st =>
+                {
+                    st.Show_PresetButtons = _mix.Checked;
+
+                    //toogle of other -radio style
+                    if (st.Show_PresetButtons == true)
+                    {
+                        st.Show_PlusMinusButtons = false;
+                        st.Show_PlusMinusButtons_v2 = false;
+                        mi_ShowButtons.Checked = false;
+                        mi_ShowButtons_v2.Checked = false;
                     }
                 });
 
@@ -1395,6 +1737,11 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
                 mi_extras.DropDown.Items.Add(new ToolStripMenuItem("___Tablet Buttons___") { Enabled = false });
                 mi_extras.DropDown.Items.Add(mi_ShowButtons);
                 mi_extras.DropDown.Items.Add(mi_ShowButtons_v2);
+                mi_extras.DropDown.Items.Add(mi_ShowPresetButtons);
+                mi_extras.DropDown.Items.Add("-");
+                mi_extras.DropDown.Items.Add(new ToolStripMenuItem("___Scheduled Brightness___") { Enabled = false });
+                mi_extras.DropDown.Items.Add(CreateScheduledBrightnessMenuItem());
+                mi_extras.DropDown.Items.Add(CreateEditSchedulesMenuItem());
                 mi_extras.DropDown.Items.Add("-");
                 mi_extras.DropDown.Items.Add(new ToolStripMenuItem("___ReMap Keys___") { Enabled = false });
                 mi_extras.DropDown.Items.Add(mi_remapKey1);
