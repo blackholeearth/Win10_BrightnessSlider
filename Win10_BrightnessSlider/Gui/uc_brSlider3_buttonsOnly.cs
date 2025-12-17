@@ -17,7 +17,7 @@ using Newtonsoft.Json;
 namespace Win10_BrightnessSlider
 {
     [JsonObject(MemberSerialization.OptIn)] //newtonsoft Json Ignore All Prop/field
-    public partial class uc_brSlider3_buttonsOnly : UserControl, Iuc_brSlider
+    public partial class uc_brSlider3_buttonsOnly : Gui.ThemedUserControl, Iuc_brSlider
     {
         public RichInfoScreen riScreen { get; set; }
 
@@ -65,94 +65,6 @@ namespace Win10_BrightnessSlider
 
         private void uc_brSlider3_Load(object sender, EventArgs e) { }
 
-        //private void TrackBar1_KeyPress(object sender, KeyPressEventArgs e) {
-        //    Slider_SetBrightness_UP();
-        //}
-
-        //private void TrackBar1_KeyDown(object sender, KeyEventArgs e) {
-        //    Slider_SetBrightness_UP();
-        //}
-
-
-        public bool DrawFrame_isEnabled = true;
-        /// [JsonIgnore]
-        public Pen FrameColor = new Pen(Color.Orange, 1);
-        // [JsonIgnore]
-        Pen FrameColorDebug = new Pen(Color.Orange, 1)
-        {
-            DashStyle = DashStyle.Custom,
-            DashPattern = new float[] { 10, 10 },
-        };
-        //Draw border
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-
-            if (!DrawFrame_isEnabled)
-                return;
-
-            if (Debugger.IsAttached)
-                FrameColor = FrameColorDebug;
-
-            var CliRect = this.ClientRectangle;
-            CliRect.Height= CliRect.Height-2;
-            CliRect.Width = CliRect.Width-2;
-
-
-            ////win11 enabled
-            //if (Form1.isRoundCorners)
-            //{
-            //    int offset = -2;
-            //    pw.Offset(offset, 0);
-            //    ph.Offset(0, offset);
-            //    var phw = new Point(CliRect.Width + offset, CliRect.Height + offset);
-
-            //    //win11 padding, wee need bottom and right
-            //    e.Graphics.DrawLine(FrameColor, ph, phw);
-            //    e.Graphics.DrawLine(FrameColor, pw, phw); //no problem. works great on light theme
-
-            //}
-
-            if ( Form1.riScreens == null)
-                return;
-
-            //win11
-            if (Form1.isWindows11 ) 
-            {
-                var radius = 8;
-                GraphicsPath shape= new GraphicsPath();
-                if (Form1.riScreens.Count==1)
-                    shape= DrawingFn.RoundedRect(CliRect, radius);
-                else
-                {
-                    bool _First = Form1.riScreens[0] == this.riScreen;
-                    bool _Last = Form1.riScreens[Form1.riScreens.Count - 1] == this.riScreen;
-
-                    if (_First) //first
-                        shape = DrawingFn.RoundedRect(CliRect, radius ,0);
-                    else if (_Last) //last
-                        shape = DrawingFn.RoundedRect(CliRect, 0, radius);
-                    else //middle
-                        shape = DrawingFn.RoundedRect(CliRect, 0,0);
-
-                }
-
-                e.Graphics.DrawPath(FrameColor, shape);
-            }
-            else
-            {
-                var p00 = new Point(0, 0);
-                var pw = new Point(CliRect.Width, 0);
-                var ph = new Point(0, CliRect.Height);
-
-                e.Graphics.DrawLine(FrameColor, p00, pw);
-                e.Graphics.DrawLine(FrameColor, p00, ph);
-            }
-
-
-
-        }
-   
 
         private void Uc_brSlider_Disposed(object sender, EventArgs e)
         {
@@ -283,15 +195,9 @@ namespace Win10_BrightnessSlider
         }
 
 
-        private void bt_decrease_Click(object sender, EventArgs e)
-        {
-            this.Slider_SetBrightness_DOWN();
-        }
-        private void bt_increase_Click(object sender, EventArgs e)
-        {
-            this.Slider_SetBrightness_UP();
-        }
+		private void bt_decrease_Click(object sender, EventArgs e) => this.Slider_SetBrightness_DOWN();
+		private void bt_increase_Click(object sender, EventArgs e) => this.Slider_SetBrightness_UP();
 
 
-    }
+	}
 }

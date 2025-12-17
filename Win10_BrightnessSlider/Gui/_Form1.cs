@@ -677,8 +677,11 @@ v1.8.23
                 //foreach (Control ctl in fLayPnl1.Controls){ ctl.Dispose(); }
                 fLayPnl1.Controls.Clear();
 
-                foreach (var riscrX in riScreens)
+				//foreach (var riscrX in riScreens)
+				for (int i = 0; i < riScreens.Count; i++)
                 {
+                    var riscrX = riScreens[i];
+
                     //uc_brSlider2 ucSldr = GetSlider2_UC(riscrX);
                     //Control ucSldr = newSlider3_UC(riscrX);
 
@@ -690,7 +693,17 @@ v1.8.23
                     else
                         ucSldr = newSlider3_UC(riscrX);
 
-                    fLayPnl1.Controls.Add(ucSldr);
+					// 2. INJECT THE NEW LOGIC HERE
+					// Check if this control inherits from our new Base Class
+					if (ucSldr is ThemedUserControl themedControl)
+					{
+						themedControl.IsFirstItem = (i == 0);
+						themedControl.IsLastItem = (i == riScreens.Count - 1);
+
+						themedControl.FrameColor = BorderColor1;
+					}
+
+					fLayPnl1.Controls.Add(ucSldr);
                 }
                 //uc_brSlider2_List = getUCSliderLi()
 
@@ -739,7 +752,8 @@ v1.8.23
 
             ucSldr.lbl_value.ForeColor = TextColor1;
             ucSldr.lbl_Name.ForeColor = TextColor1;
-            ucSldr.FrameColor = new Pen(BorderColor1, 1);
+            //ucSldr.FrameColor = new Pen(BorderColor1, 1);
+            ucSldr.FrameColor = BorderColor1;
             if (TaskBarUtil.isTaskbarColor_Light())
                 ucSldr.pictureBox1.Image = slider_Image_dark;
             else
@@ -790,7 +804,7 @@ v1.8.23
 
             ucSldr.lbl_value.ForeColor = TextColor1;
             ucSldr.lbl_Name.ForeColor = TextColor1;
-            ucSldr.FrameColor = new Pen(BorderColor1, 1);
+            ucSldr.FrameColor = BorderColor1;
             if (TaskBarUtil.isTaskbarColor_Light())
                 ucSldr.pictureBox1.Image = slider_Image_dark;
             else
