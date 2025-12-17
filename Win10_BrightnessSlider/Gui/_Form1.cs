@@ -80,7 +80,7 @@ namespace Win10_BrightnessSlider
 /*
 
 v1.8.28
-* fix slider buttons..  (downside is clicking rapidly on + - buttons will be slow for DXVA"connected monitors." )
+* fix slider buttons.. (downside: clicking rapidly on + - buttons will be slow for DXVA monitors )
 
 v1.8.27
 * win+space > everthing ,  added error message.. "you need to install to default folder"
