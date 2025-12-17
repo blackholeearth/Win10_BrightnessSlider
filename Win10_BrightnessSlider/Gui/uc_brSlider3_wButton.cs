@@ -30,6 +30,14 @@ namespace Win10_BrightnessSlider.Gui
         public uc_brSlider3_wButton()
         {
             InitializeComponent();
+
+			// ---  WIRE THE EVENTS HERE ---
+			// Remove first to prevent double-clicking if run multiple times
+			bt_increase.Click -= bt_increase_Click;
+			bt_increase.Click += bt_increase_Click;
+
+			bt_decrease.Click -= bt_decrease_Click;
+			bt_decrease.Click += bt_decrease_Click;
         }
 
         public uc_brSlider3 _uc_brSlider3;

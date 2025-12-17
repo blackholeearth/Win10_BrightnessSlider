@@ -48,6 +48,13 @@ namespace Win10_BrightnessSlider
                 trackBar1.LargeChange = 0;
             }
 
+			// ---  WIRE THE EVENTS HERE ---
+			// Remove first to prevent double-clicking if run multiple times
+			bt_increase.Click -= bt_increase_Click;
+			bt_increase.Click += bt_increase_Click;
+
+			bt_decrease.Click -= bt_decrease_Click;
+			bt_decrease.Click += bt_decrease_Click;
 
             if (Debugger.IsAttached)  {
                // trackBar1.BackColor = Color.Red;
