@@ -183,13 +183,13 @@ namespace Win10_BrightnessSlider
 
 
 
-        /// <summary>
-        ///  value : 0 -100 ,  if fails return -1
-        /// </summary>
-        /// <param name="value">0-100</param>
-        /// <param name="_isMouseDown"></param>
-        /// <returns></returns>
-        public int SetBrightness(int value, bool _isMouseDown)
+		/// <summary>
+		///  value : 0 -100 ,  if fails return -1
+		/// </summary>
+		/// <param name="value">0-100</param>
+		/// <param name="_isMouseDown">dxva is  only allowed to run if  MouseIsReleased -( aka  msDown:False) </param>
+		/// <returns></returns>
+		public int SetBrightness(int value, bool _isMouseDown)
         {
             byte val_byte = (byte)value;
 
