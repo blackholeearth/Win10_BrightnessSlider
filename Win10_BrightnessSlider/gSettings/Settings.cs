@@ -38,6 +38,7 @@ namespace Win10_BrightnessSlider
         public bool Show_PlusMinusButtons { get; set; } = false;
         public bool Show_PlusMinusButtons_v2 { get; set; } = false;
         public bool Show_PresetButtons { get; set; } = false;
+        public List<int> PresetButtonPercentages { get; set; } = new List<int> { 0, 10, 25, 50, 75, 100 };  // Max 6 buttons
 
         public bool EnableScheduledBrightness { get; set; } = false;
         public List<BrightnessSchedule> BrightnessSchedules { get; set; } = new List<BrightnessSchedule>();
@@ -58,12 +59,26 @@ namespace Win10_BrightnessSlider
         public string dc_monitorDevicePath { get; set; }
     }
 
+    /// <summary>
+    /// Stores brightness value for a specific monitor in a schedule
+    /// </summary>
+    public class MonitorBrightnessEntry
+    {
+        public string MonitorId { get; set; }      // WMI InstanceName for matching
+        public string MonitorName { get; set; }    // User-friendly display name
+        public int BrightnessPercent { get; set; }
+    }
+
     public class BrightnessSchedule
     {
         public string Time { get; set; }  // HH:mm format (e.g., "23:00" for 11 PM)
-        public int BrightnessPercent { get; set; }
+        public int BrightnessPercent { get; set; }  // Used when ApplyToAllMonitors = true
         public bool Enabled { get; set; } = true;
         public List<DayOfWeek> Days { get; set; } = new List<DayOfWeek> { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
+
+        // Per-monitor brightness support
+        public bool ApplyToAllMonitors { get; set; } = true;  // true = same brightness for all, false = use PerMonitorBrightness
+        public List<MonitorBrightnessEntry> PerMonitorBrightness { get; set; } = new List<MonitorBrightnessEntry>();
 
         public TimeSpan GetTimeSpan()
         {
@@ -100,6 +115,20 @@ namespace Win10_BrightnessSlider
             };
 
             return string.Join(", ", Days.Distinct().OrderBy(d => (int)d).Select(d => dayAbbr[d]));
+        }
+
+        /// <summary>
+        /// Gets a display string for the brightness setting (e.g., "75%" or "Per-Monitor")
+        /// </summary>
+        public string GetBrightnessString()
+        {
+            if (ApplyToAllMonitors)
+                return $"{BrightnessPercent}%";
+
+            if (PerMonitorBrightness == null || PerMonitorBrightness.Count == 0)
+                return $"{BrightnessPercent}%";
+
+            return "Per-Monitor";
         }
     }
 

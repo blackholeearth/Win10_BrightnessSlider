@@ -994,8 +994,8 @@ v1.8.23
                     if (scheduleMinute == currentMinute)
                     {
                         // Apply this schedule
-                        FileLogger.Log($"Applying scheduled brightness: {schedule.BrightnessPercent}% at {schedule.Time} ({schedule.GetDaysString()})");
-                        ApplyScheduledBrightness(schedule.BrightnessPercent);
+                        FileLogger.Log($"Applying scheduled brightness: {schedule.GetBrightnessString()} at {schedule.Time} ({schedule.GetDaysString()})");
+                        ApplyScheduledBrightnessFromSchedule(schedule);
                         break; // Only apply one schedule per minute
                     }
                 }
@@ -1091,12 +1091,12 @@ v1.8.23
                 // If we found a schedule that should be in effect, apply it
                 if (mostRecentSchedule != null)
                 {
-                    FileLogger.Log($"Startup: Applying scheduled brightness from {mostRecentSchedule.Time}: {mostRecentSchedule.BrightnessPercent}% ({mostRecentSchedule.GetDaysString()})");
+                    FileLogger.Log($"Startup: Applying scheduled brightness from {mostRecentSchedule.Time}: {mostRecentSchedule.GetBrightnessString()} ({mostRecentSchedule.GetDaysString()})");
 
                     // Delay slightly to ensure monitors are fully ready
                     System.Threading.Thread.Sleep(500);
 
-                    ApplyScheduledBrightness(mostRecentSchedule.BrightnessPercent);
+                    ApplyScheduledBrightnessFromSchedule(mostRecentSchedule);
                 }
                 else
                 {
@@ -1110,6 +1110,36 @@ v1.8.23
         }
 
         private void ApplyScheduledBrightness(int brightness)
+        {
+            // Legacy method - applies same brightness to all monitors
+            ApplyScheduledBrightnessToAll(brightness);
+        }
+
+        private void ApplyScheduledBrightnessFromSchedule(BrightnessSchedule schedule)
+        {
+            try
+            {
+                if (riScreens == null || riScreens.Count == 0)
+                    return;
+
+                if (schedule.ApplyToAllMonitors)
+                {
+                    // Same brightness for all monitors
+                    ApplyScheduledBrightnessToAll(schedule.BrightnessPercent);
+                }
+                else
+                {
+                    // Per-monitor brightness
+                    ApplyPerMonitorBrightness(schedule);
+                }
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Log("ApplyScheduledBrightnessFromSchedule error: " + ex.Message);
+            }
+        }
+
+        private void ApplyScheduledBrightnessToAll(int brightness)
         {
             try
             {
@@ -1135,7 +1165,44 @@ v1.8.23
             }
             catch (Exception ex)
             {
-                FileLogger.Log("ApplyScheduledBrightness error: " + ex.Message);
+                FileLogger.Log("ApplyScheduledBrightnessToAll error: " + ex.Message);
+            }
+        }
+
+        private void ApplyPerMonitorBrightness(BrightnessSchedule schedule)
+        {
+            try
+            {
+                if (riScreens == null || riScreens.Count == 0 || schedule.PerMonitorBrightness == null)
+                    return;
+
+                var tasks = new List<Task>();
+
+                foreach (var riScreen in riScreens)
+                {
+                    // Find matching brightness entry for this monitor
+                    var monitorId = riScreen.WMIMonitorID?.InstanceName ?? riScreen.dc_TargetDeviceName?.monitorDevicePath;
+                    var entry = schedule.PerMonitorBrightness.FirstOrDefault(e => e.MonitorId == monitorId);
+
+                    int brightness = entry?.BrightnessPercent ?? schedule.BrightnessPercent;
+                    var screen = riScreen;
+
+                    FileLogger.Log($"ApplyPerMonitorBrightness: Setting {screen.avail_MonitorName_clean ?? monitorId} to {brightness}%");
+                    tasks.Add(Task.Run(() => screen.SetBrightness(brightness, false)));
+                }
+
+                Task.WaitAll(tasks.ToArray());
+
+                // Update UI on UI thread
+                this.Invoke((Action)(() =>
+                {
+                    GUI_Update__AllSliderControls();
+                    GUI_Update_NotifyIconText();
+                }));
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Log("ApplyPerMonitorBrightness error: " + ex.Message);
             }
         }
 

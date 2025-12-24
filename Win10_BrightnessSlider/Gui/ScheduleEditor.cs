@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -10,54 +11,64 @@ namespace Win10_BrightnessSlider.Gui
         private List<BrightnessSchedule> schedules;
         private BrightnessSchedule currentlyEditing;
         private Dictionary<DayOfWeek, CheckBox> dayCheckboxes;
+        private bool isLoading = false;  // Prevents event handlers from firing during load
+
+        // Per-monitor brightness controls
+        private RadioButton rbAllMonitors;
+        private RadioButton rbPerMonitor;
+        private Panel panelPerMonitor;
+        private Dictionary<string, NumericUpDown> monitorBrightnessControls;  // MonitorId -> NumericUpDown
 
         public ScheduleEditor()
         {
             InitializeComponent();
             ModernizeUI();
             CreateDayCheckboxes();
+            CreatePerMonitorControls();
         }
 
         private void ModernizeUI()
         {
             // Modern styling
-            this.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.BackColor = System.Drawing.Color.FromArgb(240, 240, 240);
+            this.Font = new Font("Segoe UI", 9F);
+            this.BackColor = Color.FromArgb(240, 240, 240);
 
             // Style groupbox
-            groupBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            groupBox1.ForeColor = System.Drawing.Color.FromArgb(60, 60, 60);
+            groupBox1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            groupBox1.ForeColor = Color.FromArgb(60, 60, 60);
 
-            // Enlarge form for better spacing
-            this.ClientSize = new System.Drawing.Size(560, 350);
+            // Enlarge form for per-monitor controls
+            this.ClientSize = new Size(720, 450);
 
             // Reposition main controls
-            listBox_Schedules.Font = new System.Drawing.Font("Segoe UI", 9F);
-            listBox_Schedules.Size = new System.Drawing.Size(300, 280);
+            listBox_Schedules.Font = new Font("Segoe UI", 9F);
+            listBox_Schedules.Size = new Size(300, 380);
 
-            groupBox1.Location = new System.Drawing.Point(318, 12);
-            groupBox1.Size = new System.Drawing.Size(230, 280);
+            groupBox1.Location = new Point(318, 12);
+            groupBox1.Size = new Size(390, 380);
+            groupBox1.Text = "Edit Schedule";
 
             // Style buttons
             foreach (var btn in new[] { btn_Add, btn_Remove, btn_Save, btn_Cancel })
             {
-                btn.Font = new System.Drawing.Font("Segoe UI", 9F);
+                btn.Font = new Font("Segoe UI", 9F);
                 btn.FlatStyle = FlatStyle.Flat;
-                btn.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(100, 100, 100);
-                btn.BackColor = System.Drawing.Color.White;
+                btn.FlatAppearance.BorderColor = Color.FromArgb(100, 100, 100);
+                btn.BackColor = Color.White;
                 btn.Cursor = Cursors.Hand;
             }
 
             // Position buttons at bottom
-            btn_Add.Location = new System.Drawing.Point(12, 300);
-            btn_Remove.Location = new System.Drawing.Point(106, 300);
-            btn_Save.Location = new System.Drawing.Point(366, 300);
-            btn_Cancel.Location = new System.Drawing.Point(460, 300);
+            btn_Add.Location = new Point(12, 405);
+            btn_Remove.Location = new Point(106, 405);
+            btn_Save.Location = new Point(526, 405);
+            btn_Cancel.Location = new Point(620, 405);
 
-            // Style numeric controls
-            numericUpDown_Brightness.Font = new System.Drawing.Font("Segoe UI", 10F);
-            timePicker_Hour.Font = new System.Drawing.Font("Segoe UI", 10F);
-            timePicker_Minute.Font = new System.Drawing.Font("Segoe UI", 10F);
+            // Style numeric controls - hide default brightness control (we'll use per-monitor panel)
+            numericUpDown_Brightness.Visible = false;
+            label3.Visible = false;  // Hide "Brightness" label
+            timePicker_Hour.Font = new Font("Segoe UI", 10F);
+            timePicker_Minute.Font = new Font("Segoe UI", 10F);
         }
 
         private void CreateDayCheckboxes()
@@ -173,7 +184,179 @@ namespace Win10_BrightnessSlider.Gui
 
         private void DayCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateCurrentScheduleDays();
+            if (!isLoading) UpdateCurrentScheduleDays();
+        }
+
+        private void CreatePerMonitorControls()
+        {
+            monitorBrightnessControls = new Dictionary<string, NumericUpDown>();
+
+            // Create brightness section label
+            var lblBrightness = new Label
+            {
+                Text = "Brightness:",
+                Location = new Point(200, 20),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(60, 60, 60),
+                AutoSize = true
+            };
+            groupBox1.Controls.Add(lblBrightness);
+
+            // Radio button: All Monitors Same
+            rbAllMonitors = new RadioButton
+            {
+                Text = "All Monitors Same:",
+                Location = new Point(200, 45),
+                Size = new Size(140, 22),
+                Font = new Font("Segoe UI", 9F),
+                Checked = true,
+                Cursor = Cursors.Hand
+            };
+            rbAllMonitors.CheckedChanged += (s, e) =>
+            {
+                if (!isLoading && rbAllMonitors.Checked)
+                {
+                    numericUpDown_Brightness.Visible = true;
+                    numericUpDown_Brightness.Location = new Point(340, 43);
+                    panelPerMonitor.Visible = false;
+                    UpdateCurrentSchedule();
+                }
+            };
+            groupBox1.Controls.Add(rbAllMonitors);
+
+            // NumericUpDown for "All Monitors" mode - reuse existing but reposition
+            numericUpDown_Brightness.Visible = true;
+            numericUpDown_Brightness.Location = new Point(340, 43);
+            numericUpDown_Brightness.Size = new Size(60, 25);
+
+            // Radio button: Per-Monitor
+            rbPerMonitor = new RadioButton
+            {
+                Text = "Per-Monitor:",
+                Location = new Point(200, 72),
+                Size = new Size(140, 22),
+                Font = new Font("Segoe UI", 9F),
+                Cursor = Cursors.Hand
+            };
+            rbPerMonitor.CheckedChanged += (s, e) =>
+            {
+                if (!isLoading && rbPerMonitor.Checked)
+                {
+                    numericUpDown_Brightness.Visible = false;
+                    panelPerMonitor.Visible = true;
+                    UpdateCurrentSchedule();
+                }
+            };
+            groupBox1.Controls.Add(rbPerMonitor);
+
+            // Panel for per-monitor controls
+            panelPerMonitor = new Panel
+            {
+                Location = new Point(200, 96),
+                Size = new Size(180, 180),
+                AutoScroll = true,
+                BorderStyle = BorderStyle.FixedSingle,
+                BackColor = Color.White,
+                Visible = false
+            };
+            groupBox1.Controls.Add(panelPerMonitor);
+
+            // Populate with detected monitors
+            PopulateMonitorControls();
+        }
+
+        private void PopulateMonitorControls()
+        {
+            panelPerMonitor.Controls.Clear();
+            monitorBrightnessControls.Clear();
+
+            var monitors = Form1.riScreens;
+            if (monitors == null || monitors.Count == 0)
+            {
+                var lblNoMonitors = new Label
+                {
+                    Text = "No monitors detected",
+                    Location = new Point(5, 10),
+                    AutoSize = true,
+                    ForeColor = Color.Gray
+                };
+                panelPerMonitor.Controls.Add(lblNoMonitors);
+                return;
+            }
+
+            int yPos = 5;
+            int monitorIndex = 1;
+
+            foreach (var riScreen in monitors)
+            {
+                string monitorId = riScreen.WMIMonitorID?.InstanceName ?? riScreen.dc_TargetDeviceName?.monitorDevicePath ?? $"Monitor_{monitorIndex}";
+                string displayName = GetMonitorDisplayName(riScreen, monitorIndex);
+
+                // Label for monitor name
+                var lbl = new Label
+                {
+                    Text = displayName,
+                    Location = new Point(5, yPos + 3),
+                    Size = new Size(100, 20),
+                    Font = new Font("Segoe UI", 8F),
+                    AutoEllipsis = true
+                };
+                panelPerMonitor.Controls.Add(lbl);
+
+                // NumericUpDown for brightness
+                var nud = new NumericUpDown
+                {
+                    Location = new Point(110, yPos),
+                    Size = new Size(50, 22),
+                    Minimum = 0,
+                    Maximum = 100,
+                    Value = 100,
+                    Font = new Font("Segoe UI", 8F),
+                    Tag = monitorId
+                };
+                nud.ValueChanged += PerMonitorBrightness_ValueChanged;
+                panelPerMonitor.Controls.Add(nud);
+
+                // % label
+                var lblPercent = new Label
+                {
+                    Text = "%",
+                    Location = new Point(162, yPos + 3),
+                    AutoSize = true,
+                    Font = new Font("Segoe UI", 8F)
+                };
+                panelPerMonitor.Controls.Add(lblPercent);
+
+                monitorBrightnessControls[monitorId] = nud;
+                yPos += 28;
+                monitorIndex++;
+            }
+        }
+
+        private string GetMonitorDisplayName(RichInfoScreen riScreen, int index)
+        {
+            // Try to get user-set name first
+            var settings = Settings_json.Get();
+            if (settings.monitorNames != null)
+            {
+                var matchingName = settings.monitorNames.FirstOrDefault(m =>
+                    m.wmi_InstanceName == riScreen.WMIMonitorID?.InstanceName ||
+                    m.dc_monitorDevicePath == riScreen.dc_TargetDeviceName?.monitorDevicePath);
+
+                if (matchingName != null && !string.IsNullOrEmpty(matchingName.MonitorName))
+                    return matchingName.MonitorName;
+            }
+
+            // Fallback to model name or generic
+            if (!string.IsNullOrEmpty(riScreen.avail_MonitorName_clean))
+                return riScreen.avail_MonitorName_clean;
+
+            return $"Monitor {index}";
+        }
+
+        private void PerMonitorBrightness_ValueChanged(object sender, EventArgs e)
+        {
+            if (!isLoading) UpdateCurrentSchedule();
         }
 
         private void ScheduleEditor_Load(object sender, EventArgs e)
@@ -196,7 +379,8 @@ namespace Win10_BrightnessSlider.Gui
             {
                 var status = schedule.Enabled ? "" : " (Disabled)";
                 var days = schedule.GetDaysString();
-                listBox_Schedules.Items.Add($"{schedule.Time} → {schedule.BrightnessPercent}% - {days}{status}");
+                var brightness = schedule.GetBrightnessString();
+                listBox_Schedules.Items.Add($"{schedule.Time} → {brightness} - {days}{status}");
             }
         }
 
@@ -211,11 +395,7 @@ namespace Win10_BrightnessSlider.Gui
 
         private void LoadScheduleToEditor(BrightnessSchedule schedule)
         {
-            // Temporarily unhook events to prevent duplicate saves during load
-            foreach (var kvp in dayCheckboxes)
-            {
-                kvp.Value.CheckedChanged -= DayCheckbox_CheckedChanged;
-            }
+            isLoading = true;  // Prevent event handlers from firing during load
 
             var time = schedule.GetTimeSpan();
             timePicker_Hour.Value = time.Hours;
@@ -236,20 +416,38 @@ namespace Win10_BrightnessSlider.Gui
             // Clean up the schedule's Days list immediately
             schedule.Days = daysToLoad;
 
-            // Re-hook events
-            foreach (var kvp in dayCheckboxes)
+            // Load per-monitor brightness settings
+            if (schedule.ApplyToAllMonitors)
             {
-                kvp.Value.CheckedChanged += DayCheckbox_CheckedChanged;
+                rbAllMonitors.Checked = true;
+                numericUpDown_Brightness.Visible = true;
+                panelPerMonitor.Visible = false;
             }
+            else
+            {
+                rbPerMonitor.Checked = true;
+                numericUpDown_Brightness.Visible = false;
+                panelPerMonitor.Visible = true;
+
+                // Load per-monitor values
+                if (schedule.PerMonitorBrightness != null)
+                {
+                    foreach (var entry in schedule.PerMonitorBrightness)
+                    {
+                        if (monitorBrightnessControls.TryGetValue(entry.MonitorId, out var nud))
+                        {
+                            nud.Value = Math.Max(0, Math.Min(100, entry.BrightnessPercent));
+                        }
+                    }
+                }
+            }
+
+            isLoading = false;  // Re-enable event handlers
         }
 
         private void ClearEditor()
         {
-            // Temporarily unhook day checkbox events
-            foreach (var kvp in dayCheckboxes)
-            {
-                kvp.Value.CheckedChanged -= DayCheckbox_CheckedChanged;
-            }
+            isLoading = true;  // Prevent event handlers from firing during clear
 
             timePicker_Hour.Value = 0;
             timePicker_Minute.Value = 0;
@@ -262,13 +460,17 @@ namespace Win10_BrightnessSlider.Gui
                 cb.Checked = true;
             }
 
-            currentlyEditing = null;
-
-            // Re-hook day checkbox events
-            foreach (var kvp in dayCheckboxes)
+            // Reset per-monitor controls
+            rbAllMonitors.Checked = true;
+            numericUpDown_Brightness.Visible = true;
+            panelPerMonitor.Visible = false;
+            foreach (var nud in monitorBrightnessControls.Values)
             {
-                kvp.Value.CheckedChanged += DayCheckbox_CheckedChanged;
+                nud.Value = 100;
             }
+
+            currentlyEditing = null;
+            isLoading = false;
         }
 
         private void btn_Add_Click(object sender, EventArgs e)
@@ -280,13 +482,47 @@ namespace Win10_BrightnessSlider.Gui
                 Time = $"{(int)timePicker_Hour.Value:D2}:{(int)timePicker_Minute.Value:D2}",
                 BrightnessPercent = (int)numericUpDown_Brightness.Value,
                 Enabled = checkBox_Enabled.Checked,
-                Days = selectedDays
+                Days = selectedDays,
+                ApplyToAllMonitors = rbAllMonitors.Checked,
+                PerMonitorBrightness = GetPerMonitorBrightnessEntries()
             };
 
             schedules.Add(newSchedule);
             SaveSchedules();
             UpdateScheduleList();
             listBox_Schedules.SelectedIndex = schedules.Count - 1;
+        }
+
+        private List<MonitorBrightnessEntry> GetPerMonitorBrightnessEntries()
+        {
+            var entries = new List<MonitorBrightnessEntry>();
+            var monitors = Form1.riScreens;
+
+            if (monitors == null) return entries;
+
+            int monitorIndex = 1;
+            foreach (var riScreen in monitors)
+            {
+                string monitorId = riScreen.WMIMonitorID?.InstanceName ?? riScreen.dc_TargetDeviceName?.monitorDevicePath ?? $"Monitor_{monitorIndex}";
+                string displayName = GetMonitorDisplayName(riScreen, monitorIndex);
+
+                int brightness = 100;
+                if (monitorBrightnessControls.TryGetValue(monitorId, out var nud))
+                {
+                    brightness = (int)nud.Value;
+                }
+
+                entries.Add(new MonitorBrightnessEntry
+                {
+                    MonitorId = monitorId,
+                    MonitorName = displayName,
+                    BrightnessPercent = brightness
+                });
+
+                monitorIndex++;
+            }
+
+            return entries;
         }
 
         private void btn_Remove_Click(object sender, EventArgs e)
@@ -323,17 +559,17 @@ namespace Win10_BrightnessSlider.Gui
 
         private void timePicker_ValueChanged(object sender, EventArgs e)
         {
-            UpdateCurrentSchedule();
+            if (!isLoading) UpdateCurrentSchedule();
         }
 
         private void numericUpDown_Brightness_ValueChanged(object sender, EventArgs e)
         {
-            UpdateCurrentSchedule();
+            if (!isLoading) UpdateCurrentSchedule();
         }
 
         private void checkBox_Enabled_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateCurrentSchedule();
+            if (!isLoading) UpdateCurrentSchedule();
         }
 
         private void UpdateCurrentSchedule()
@@ -343,6 +579,8 @@ namespace Win10_BrightnessSlider.Gui
                 currentlyEditing.Time = $"{(int)timePicker_Hour.Value:D2}:{(int)timePicker_Minute.Value:D2}";
                 currentlyEditing.BrightnessPercent = (int)numericUpDown_Brightness.Value;
                 currentlyEditing.Enabled = checkBox_Enabled.Checked;
+                currentlyEditing.ApplyToAllMonitors = rbAllMonitors.Checked;
+                currentlyEditing.PerMonitorBrightness = GetPerMonitorBrightnessEntries();
                 UpdateCurrentScheduleDays();
                 SaveSchedules();
                 UpdateScheduleList();

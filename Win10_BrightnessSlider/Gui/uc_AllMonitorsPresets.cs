@@ -22,9 +22,62 @@ namespace Win10_BrightnessSlider.Gui
             DashPattern = new float[] { 10, 10 },
         };
 
+        private List<Button> presetButtons = new List<Button>();
+
         public uc_AllMonitorsPresets()
         {
             InitializeComponent();
+            CreatePresetButtons();
+        }
+
+        private void CreatePresetButtons()
+        {
+            // Remove old hardcoded buttons if they exist
+            if (bt_0 != null) { this.Controls.Remove(bt_0); bt_0.Dispose(); }
+            if (bt_25 != null) { this.Controls.Remove(bt_25); bt_25.Dispose(); }
+            if (bt_50 != null) { this.Controls.Remove(bt_50); bt_50.Dispose(); }
+            if (bt_75 != null) { this.Controls.Remove(bt_75); bt_75.Dispose(); }
+            if (bt_100 != null) { this.Controls.Remove(bt_100); bt_100.Dispose(); }
+
+            presetButtons.Clear();
+
+            var settings = Settings_json.Get();
+            var percentages = settings.PresetButtonPercentages ?? new List<int> { 0, 10, 25, 50, 75, 100 };
+
+            // Limit to 6 buttons max for width
+            if (percentages.Count > 6) percentages = percentages.Take(6).ToList();
+
+            int buttonWidth = 44;
+            int buttonHeight = 30;
+            int startX = 100;  // After the label
+            int spacing = 4;
+
+            for (int i = 0; i < percentages.Count; i++)
+            {
+                int percent = percentages[i];
+                var btn = new Button
+                {
+                    Text = $"{percent}%",
+                    Size = new Size(buttonWidth, buttonHeight),
+                    Location = new Point(startX + i * (buttonWidth + spacing), 5),
+                    FlatStyle = FlatStyle.Flat,
+                    Font = new Font("Segoe UI", 8F),
+                    TabStop = false,
+                    Anchor = AnchorStyles.Left,
+                    Tag = percent
+                };
+                btn.Click += PresetButton_Click;
+                presetButtons.Add(btn);
+                this.Controls.Add(btn);
+            }
+        }
+
+        private void PresetButton_Click(object sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int percent)
+            {
+                SetAllMonitorsBrightness(percent);
+            }
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -75,37 +128,14 @@ namespace Win10_BrightnessSlider.Gui
             lbl_Title.BackColor = bg;
             lbl_Title.ForeColor = text;
 
-            bt_0.BackColor = bg;
-            bt_0.ForeColor = text;
-            bt_0.FlatAppearance.BorderColor = border;
-
-            bt_25.BackColor = bg;
-            bt_25.ForeColor = text;
-            bt_25.FlatAppearance.BorderColor = border;
-
-            bt_50.BackColor = bg;
-            bt_50.ForeColor = text;
-            bt_50.FlatAppearance.BorderColor = border;
-
-            bt_75.BackColor = bg;
-            bt_75.ForeColor = text;
-            bt_75.FlatAppearance.BorderColor = border;
-
-            bt_100.BackColor = bg;
-            bt_100.ForeColor = text;
-            bt_100.FlatAppearance.BorderColor = border;
-
-            bt_0.FlatAppearance.BorderSize =
-            bt_25.FlatAppearance.BorderSize =
-            bt_50.FlatAppearance.BorderSize =
-            bt_75.FlatAppearance.BorderSize =
-            bt_100.FlatAppearance.BorderSize = 0;
-
-            bt_0.BackColor =
-            bt_25.BackColor =
-            bt_50.BackColor =
-            bt_75.BackColor =
-            bt_100.BackColor = border;
+            // Style all dynamic preset buttons
+            foreach (var btn in presetButtons)
+            {
+                btn.BackColor = border;
+                btn.ForeColor = text;
+                btn.FlatAppearance.BorderColor = border;
+                btn.FlatAppearance.BorderSize = 0;
+            }
         }
 
         private void uc_AllMonitorsPresets_Load(object sender, EventArgs e) { }
@@ -152,10 +182,11 @@ namespace Win10_BrightnessSlider.Gui
             }
         }
 
-        private void bt_0_Click(object sender, EventArgs e) => SetAllMonitorsBrightness(0);
-        private void bt_25_Click(object sender, EventArgs e) => SetAllMonitorsBrightness(25);
-        private void bt_50_Click(object sender, EventArgs e) => SetAllMonitorsBrightness(50);
-        private void bt_75_Click(object sender, EventArgs e) => SetAllMonitorsBrightness(75);
-        private void bt_100_Click(object sender, EventArgs e) => SetAllMonitorsBrightness(100);
+        // Legacy handlers kept for designer compatibility - not used anymore
+        private void bt_0_Click(object sender, EventArgs e) { }
+        private void bt_25_Click(object sender, EventArgs e) { }
+        private void bt_50_Click(object sender, EventArgs e) { }
+        private void bt_75_Click(object sender, EventArgs e) { }
+        private void bt_100_Click(object sender, EventArgs e) { }
     }
 }
