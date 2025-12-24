@@ -79,27 +79,30 @@ namespace Win10_BrightnessSlider
 
 /*
 
+v1.8.28
+* fix slider buttons.. (downside: clicking rapidly on + - buttons will be slow for DXVA monitors )
+
 v1.8.27
 * win+space > everthing ,  added error message.. "you need to install to default folder"
 
 v1.8.26
 * extras -> slider wButton , width is Back to Previous Size. - #182
-         
+
 v1.8.25
 * at win10 - gap between contexmenu and taskbar set to 1px;
 * Fixed: slider wButton right part is hidden/outside of screen - #182
-        
+
 v1.8.24
 * (info discovered - not enabled/ not tested ). scan only for monitor plug_in/out, Not Usb.
 * Added Proxy Detection, and Proxy Icon
-        
+
 v1.8.23
 * improved: system events are debounced
 * fixed: mouse freezes for 1sec, when app Starts* 
-    * migrated globalMouse to  **TolikPylypchuk/SharpHook**
-       
+	* migrated globalMouse to  **TolikPylypchuk/SharpHook**
+
 */
-		static string version = "1.9.0";
+		static string version = "1.9.1";
 
         /// <summary>
         /// is win11
@@ -692,8 +695,10 @@ v1.8.23
                     fLayPnl1.Controls.Add(allMonitorsControl);
                 }
 
-                foreach (var riscrX in riScreens)
+                for (int i = 0; i < riScreens.Count; i++)
                 {
+                    var riscrX = riScreens[i];
+
                     //uc_brSlider2 ucSldr = GetSlider2_UC(riscrX);
                     //Control ucSldr = newSlider3_UC(riscrX);
 
@@ -707,7 +712,17 @@ v1.8.23
                     else
                         ucSldr = newSlider3_UC(riscrX);
 
-                    fLayPnl1.Controls.Add(ucSldr);
+					// 2. INJECT THE NEW LOGIC HERE
+					// Check if this control inherits from our new Base Class
+					if (ucSldr is ThemedUserControl themedControl)
+					{
+						themedControl.IsFirstItem = (i == 0);
+						themedControl.IsLastItem = (i == riScreens.Count - 1);
+
+						themedControl.FrameColor = BorderColor1;
+					}
+
+					fLayPnl1.Controls.Add(ucSldr);
                 }
                 //uc_brSlider2_List = getUCSliderLi()
 
@@ -756,7 +771,8 @@ v1.8.23
 
             ucSldr.lbl_value.ForeColor = TextColor1;
             ucSldr.lbl_Name.ForeColor = TextColor1;
-            ucSldr.FrameColor = new Pen(BorderColor1, 1);
+            //ucSldr.FrameColor = new Pen(BorderColor1, 1);
+            ucSldr.FrameColor = BorderColor1;
             if (TaskBarUtil.isTaskbarColor_Light())
                 ucSldr.pictureBox1.Image = slider_Image_dark;
             else
@@ -807,7 +823,7 @@ v1.8.23
 
             ucSldr.lbl_value.ForeColor = TextColor1;
             ucSldr.lbl_Name.ForeColor = TextColor1;
-            ucSldr.FrameColor = new Pen(BorderColor1, 1);
+            ucSldr.FrameColor = BorderColor1;
             if (TaskBarUtil.isTaskbarColor_Light())
                 ucSldr.pictureBox1.Image = slider_Image_dark;
             else
