@@ -44,7 +44,7 @@ namespace Win10_BrightnessSlider.Gui
             presetButtons.Clear();
 
             var settings = Settings_json.Get();
-            var percentages = settings.PresetButtonPercentages ?? new List<int> { 0, 10, 25, 50, 75, 100 };
+            var percentages = settings.PresetButtonPercentages ?? new List<int> { 0, 10, 25, 50, 75, 99 };//100 isbreaking into new line..
 
             // Limit to 6 buttons max for width
             if (percentages.Count > 6) percentages = percentages.Take(6).ToList();

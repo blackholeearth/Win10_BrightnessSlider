@@ -35,10 +35,11 @@ namespace Win10_BrightnessSlider
         public bool Hotkey_OpenEverything { get; set; } = false;
         public bool MapCopilotKey { get; set; } = false;
         public bool Show_WifiIcon { get; set; } = false;
+
         public bool Show_PlusMinusButtons { get; set; } = false;
         public bool Show_PlusMinusButtons_v2 { get; set; } = false;
         public bool Show_PresetButtons { get; set; } = false;
-        public List<int> PresetButtonPercentages { get; set; } = new List<int> { 0, 10, 25, 50, 75, 100 };  // Max 6 buttons
+        public List<int> PresetButtonPercentages { get; set; } = new List<int> { 0, 10, 25, 50, 75, 99 };  // Max 6 buttons
 
         public bool EnableScheduledBrightness { get; set; } = false;
         public List<BrightnessSchedule> BrightnessSchedules { get; set; } = new List<BrightnessSchedule>();
