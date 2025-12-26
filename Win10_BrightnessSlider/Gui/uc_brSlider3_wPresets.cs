@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace Win10_BrightnessSlider.Gui
 {
-    public partial class uc_brSlider3_wPresets : UserControl , Iuc_brSlider
+    public partial class uc_brSlider3_wPresets : ThemedUserControl , Iuc_brSlider
     {
         //interface
         RichInfoScreen Iuc_brSlider.richInfoScreen
@@ -91,103 +91,6 @@ namespace Win10_BrightnessSlider.Gui
         }
 
         public uc_brSlider3 _uc_brSlider3;
-
-        /// [JsonIgnore]
-        public Pen FrameColor = new Pen(Color.Orange, 1);
-        // [JsonIgnore]
-        Pen FrameColorDebug = new Pen(Color.Orange, 1)
-        {
-            DashStyle = DashStyle.Custom,
-            DashPattern = new float[] { 10, 10 },
-        };
-        //Draw border
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-
-            if (Debugger.IsAttached)
-                FrameColor = FrameColorDebug;
-
-            var CliRect = this.ClientRectangle;
-            CliRect.Height = CliRect.Height - 2;
-            CliRect.Width = CliRect.Width - 2;
-
-
-            ////win11 enabled
-            //if (Form1.isRoundCorners)
-            //{
-            //    int offset = -2;
-            //    pw.Offset(offset, 0);
-            //    ph.Offset(0, offset);
-            //    var phw = new Point(CliRect.Width + offset, CliRect.Height + offset);
-
-            //    //win11 padding, wee need bottom and right
-            //    e.Graphics.DrawLine(FrameColor, ph, phw);
-            //    e.Graphics.DrawLine(FrameColor, pw, phw); //no problem. works great on light theme
-
-            //}
-
-            if (Form1.riScreens == null)
-                return;
-
-            //win11
-            if (Form1.isWindows11)
-            {
-                var radius = 8;
-                GraphicsPath shape = new GraphicsPath();
-
-                // Check if "All Monitors" control exists (preset buttons with multiple monitors)
-                var parentForm = this.FindForm() as Form1;
-                bool hasAllMonitorsControl = parentForm?.HasAllMonitorsControl() ?? false;
-
-                if (Form1.riScreens.Count == 1 && !hasAllMonitorsControl)
-                {
-                    // Single monitor, no "All Monitors" control - full rounded corners
-                    shape = DrawingFn.RoundedRect(CliRect, radius);
-                }
-                else if (hasAllMonitorsControl)
-                {
-                    // Multiple monitors with "All Monitors" at top
-                    bool _Last = Form1.riScreens[Form1.riScreens.Count - 1] == this._uc_brSlider3.riScreen;
-
-                    if (_Last)
-                        // Last monitor - bottom rounded corners only
-                        shape = DrawingFn.RoundedRect(CliRect, 0, radius);
-                    else
-                        // First or middle monitors - no rounded corners
-                        shape = DrawingFn.RoundedRect(CliRect, 0, 0);
-                }
-                else
-                {
-                    // Multiple monitors, no "All Monitors" control (shouldn't happen with preset buttons)
-                    bool _First = Form1.riScreens[0] == this._uc_brSlider3.riScreen;
-                    bool _Last = Form1.riScreens[Form1.riScreens.Count - 1] == this._uc_brSlider3.riScreen;
-
-                    if (_First)
-                        shape = DrawingFn.RoundedRect(CliRect, radius, 0);
-                    else if (_Last)
-                        shape = DrawingFn.RoundedRect(CliRect, 0, radius);
-                    else
-                        shape = DrawingFn.RoundedRect(CliRect, 0, 0);
-                }
-
-                e.Graphics.DrawPath(FrameColor, shape);
-            }
-            else
-            {
-                var p00 = new Point(0, 0);
-                var pw = new Point(CliRect.Width, 0);
-                var ph = new Point(0, CliRect.Height);
-
-                e.Graphics.DrawLine(FrameColor, p00, pw);
-                e.Graphics.DrawLine(FrameColor, p00, ph);
-            }
-
-
-
-        }
-
-
 
 
         public void SetGUIColors(Color bg, Color text , Color border , uc_brSlider3 ucBrSlider3)
