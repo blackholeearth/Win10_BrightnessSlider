@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace Win10_BrightnessSlider.Gui
 {
+	
     public partial class ScheduleEditor : Form
     {
         private List<BrightnessSchedule> schedules;
@@ -25,10 +27,16 @@ namespace Win10_BrightnessSlider.Gui
             ModernizeUI();
             CreateDayCheckboxes();
             CreatePerMonitorControls();
-        }
+		}
 
-        private void ModernizeUI()
+		
+
+		
+
+		private void ModernizeUI()
         {
+			
+
             // Modern styling
             this.Font = new Font("Segoe UI", 9F);
             this.BackColor = Color.FromArgb(240, 240, 240);
@@ -37,15 +45,15 @@ namespace Win10_BrightnessSlider.Gui
             groupBox1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             groupBox1.ForeColor = Color.FromArgb(60, 60, 60);
 
-            // Enlarge form for per-monitor controls
-            this.ClientSize = new Size(720, 450);
+			// Enlarge form for per-monitor controls
+			this.ClientSize = new Size(720 , 450 ).ApplyDpiFix_ToSize(); 
 
             // Reposition main controls
             listBox_Schedules.Font = new Font("Segoe UI", 9F);
-            listBox_Schedules.Size = new Size(300, 380);
+            listBox_Schedules.Size = new Size(300 , 380 ).ApplyDpiFix_ToSize(); 
 
-            groupBox1.Location = new Point(318, 12);
-            groupBox1.Size = new Size(390, 380);
+			groupBox1.Location = new Point(318, 12);
+            groupBox1.Size = new Size(390 , 380 ).ApplyDpiFix_ToSize();
             groupBox1.Text = "Edit Schedule";
 
             // Style buttons
@@ -59,13 +67,13 @@ namespace Win10_BrightnessSlider.Gui
             }
 
             // Position buttons at bottom
-            btn_Add.Location = new Point(12, 405);
-            btn_Remove.Location = new Point(106, 405);
-            btn_Save.Location = new Point(526, 405);
-            btn_Cancel.Location = new Point(620, 405);
+            btn_Add.Location = new Point(12, 405).ApplyDpiFix_ToPoint();
+            btn_Remove.Location = new Point(106, 405).ApplyDpiFix_ToPoint();
+			btn_Save.Location = new Point(526, 405).ApplyDpiFix_ToPoint();
+			btn_Cancel.Location = new Point(620, 405).ApplyDpiFix_ToPoint();
 
-            // Style numeric controls - hide default brightness control (we'll use per-monitor panel)
-            numericUpDown_Brightness.Visible = false;
+			// Style numeric controls - hide default brightness control (we'll use per-monitor panel)
+			numericUpDown_Brightness.Visible = false;
             label3.Visible = false;  // Hide "Brightness" label
             timePicker_Hour.Font = new Font("Segoe UI", 10F);
             timePicker_Minute.Font = new Font("Segoe UI", 10F);
@@ -83,7 +91,7 @@ namespace Win10_BrightnessSlider.Gui
                 {
                     Text = dayNames[i],
                     Location = new System.Drawing.Point(15, 148 + (i * 24)),  // Vertical stack
-                    Size = new System.Drawing.Size(70, 20),
+                    Size = new System.Drawing.Size(70, 20).ApplyDpiFix_ToSize(),
                     Checked = true,
                     Font = new System.Drawing.Font("Segoe UI", 9F),
                     Cursor = Cursors.Hand,
@@ -98,7 +106,7 @@ namespace Win10_BrightnessSlider.Gui
             var lblDays = new Label
             {
                 Text = "Active Days:",
-                Location = new System.Drawing.Point(15, 125),
+                Location = new System.Drawing.Point(15, 125).ApplyDpiFix_ToPoint(),
                 Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular),
                 ForeColor = System.Drawing.Color.FromArgb(60, 60, 60),
                 AutoSize = true
@@ -109,8 +117,8 @@ namespace Win10_BrightnessSlider.Gui
             var btnWeekdays = new Button
             {
                 Text = "Weekdays",
-                Location = new System.Drawing.Point(95, 148),
-                Size = new System.Drawing.Size(75, 24),
+                Location = new System.Drawing.Point(95, 148).ApplyDpiFix_ToPoint(),
+                Size = new System.Drawing.Size(75, 24).ApplyDpiFix_ToSize(),
                 Font = new System.Drawing.Font("Segoe UI", 8F),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = System.Drawing.Color.FromArgb(230, 230, 230),
@@ -157,8 +165,8 @@ namespace Win10_BrightnessSlider.Gui
             var btnAllDays = new Button
             {
                 Text = "All Days",
-                Location = new System.Drawing.Point(95, 204),
-                Size = new System.Drawing.Size(75, 24),
+                Location = new System.Drawing.Point(95, 204).ApplyDpiFix_ToPoint(),
+                Size = new System.Drawing.Size(75, 24).ApplyDpiFix_ToSize(),
                 Font = new System.Drawing.Font("Segoe UI", 8F),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = System.Drawing.Color.FromArgb(230, 230, 230),
@@ -174,7 +182,7 @@ namespace Win10_BrightnessSlider.Gui
             groupBox1.Controls.Add(btnAllDays);
 
             // Move and style the Enabled checkbox
-            checkBox_Enabled.Location = new System.Drawing.Point(15, 100);
+            checkBox_Enabled.Location = new System.Drawing.Point(15, 100).ApplyDpiFix_ToPoint();
             checkBox_Enabled.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             checkBox_Enabled.ForeColor = System.Drawing.Color.FromArgb(0, 120, 215);
 
@@ -195,7 +203,7 @@ namespace Win10_BrightnessSlider.Gui
             var lblBrightness = new Label
             {
                 Text = "Brightness:",
-                Location = new Point(200, 20),
+                Location = new Point(200, 20).ApplyDpiFix_ToPoint(),
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(60, 60, 60),
                 AutoSize = true
@@ -206,8 +214,8 @@ namespace Win10_BrightnessSlider.Gui
             rbAllMonitors = new RadioButton
             {
                 Text = "All Monitors Same:",
-                Location = new Point(200, 45),
-                Size = new Size(140, 22),
+                Location = new Point(200, 45).ApplyDpiFix_ToPoint(),
+                Size = new Size(140, 22).ApplyDpiFix_ToSize(),
                 Font = new Font("Segoe UI", 9F),
                 Checked = true,
                 Cursor = Cursors.Hand
@@ -217,7 +225,7 @@ namespace Win10_BrightnessSlider.Gui
                 if (!isLoading && rbAllMonitors.Checked)
                 {
                     numericUpDown_Brightness.Visible = true;
-                    numericUpDown_Brightness.Location = new Point(340, 43);
+                    numericUpDown_Brightness.Location = new Point(340, 43).ApplyDpiFix_ToPoint();
                     panelPerMonitor.Visible = false;
                     UpdateCurrentSchedule();
                 }
@@ -226,15 +234,15 @@ namespace Win10_BrightnessSlider.Gui
 
             // NumericUpDown for "All Monitors" mode - reuse existing but reposition
             numericUpDown_Brightness.Visible = true;
-            numericUpDown_Brightness.Location = new Point(340, 43);
-            numericUpDown_Brightness.Size = new Size(60, 25);
+            numericUpDown_Brightness.Location = new Point(340, 43).ApplyDpiFix_ToPoint();
+            numericUpDown_Brightness.Size = new Size(60, 25).ApplyDpiFix_ToSize();
 
             // Radio button: Per-Monitor
             rbPerMonitor = new RadioButton
             {
                 Text = "Per-Monitor:",
-                Location = new Point(200, 72),
-                Size = new Size(140, 22),
+                Location = new Point(200, 72).ApplyDpiFix_ToPoint(),
+                Size = new Size(140, 22).ApplyDpiFix_ToSize(),
                 Font = new Font("Segoe UI", 9F),
                 Cursor = Cursors.Hand
             };
@@ -252,8 +260,8 @@ namespace Win10_BrightnessSlider.Gui
             // Panel for per-monitor controls
             panelPerMonitor = new Panel
             {
-                Location = new Point(200, 96),
-                Size = new Size(180, 180),
+                Location = new Point(200, 96).ApplyDpiFix_ToPoint(),
+                Size = new Size(180, 180).ApplyDpiFix_ToSize(),
                 AutoScroll = true,
                 BorderStyle = BorderStyle.FixedSingle,
                 BackColor = Color.White,
@@ -289,15 +297,18 @@ namespace Win10_BrightnessSlider.Gui
 
             foreach (var riScreen in monitors)
             {
-                string monitorId = riScreen.WMIMonitorID?.InstanceName ?? riScreen.dc_TargetDeviceName?.monitorDevicePath ?? $"Monitor_{monitorIndex}";
+                string monitorId = 
+					riScreen.WMIMonitorID?.InstanceName 
+					?? riScreen.dc_TargetDeviceName?.monitorDevicePath 
+					?? $"Monitor_{monitorIndex}";
                 string displayName = GetMonitorDisplayName(riScreen, monitorIndex);
 
                 // Label for monitor name
                 var lbl = new Label
                 {
                     Text = displayName,
-                    Location = new Point(5, yPos + 3),
-                    Size = new Size(100, 20),
+                    Location = new Point(5, yPos + 3).ApplyDpiFix_ToPoint(),
+                    Size = new Size(100, 20).ApplyDpiFix_ToSize(),
                     Font = new Font("Segoe UI", 8F),
                     AutoEllipsis = true
                 };
@@ -306,8 +317,8 @@ namespace Win10_BrightnessSlider.Gui
                 // NumericUpDown for brightness
                 var nud = new NumericUpDown
                 {
-                    Location = new Point(110, yPos),
-                    Size = new Size(50, 22),
+                    Location = new Point(110, yPos).ApplyDpiFix_ToPoint(),
+                    Size = new Size(50, 22).ApplyDpiFix_ToSize(),
                     Minimum = 0,
                     Maximum = 100,
                     Value = 100,
@@ -321,14 +332,14 @@ namespace Win10_BrightnessSlider.Gui
                 var lblPercent = new Label
                 {
                     Text = "%",
-                    Location = new Point(162, yPos + 3),
+                    Location = new Point(162, yPos + 3).ApplyDpiFix_ToPoint(),
                     AutoSize = true,
                     Font = new Font("Segoe UI", 8F)
                 };
                 panelPerMonitor.Controls.Add(lblPercent);
 
                 monitorBrightnessControls[monitorId] = nud;
-                yPos += 28;
+                yPos += (int)(28*Dpihelper.multiplier);
                 monitorIndex++;
             }
         }
@@ -596,4 +607,24 @@ namespace Win10_BrightnessSlider.Gui
             }
         }
     }
+}
+
+
+public static class Dpihelper
+{
+	// this programamtic ui setup is for 96dpi iguess..!??!
+	public static float design_dpi = 96;
+	public static float currentdpi = 120;  // make it programatically i know mine its 120
+	public static float multiplier => currentdpi / design_dpi;
+
+	public static Size ApplyDpiFix_ToSize(this Size size)
+	{
+		return new SizeF(size.Width * multiplier, size.Height * multiplier).ToSize();
+	}
+
+	public static Point ApplyDpiFix_ToPoint(this Point pt)
+	{
+		return new Point((int)(pt.X * multiplier), (int)(pt.Y * multiplier));
+	}
+
 }
