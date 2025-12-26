@@ -23,18 +23,17 @@ namespace Win10_BrightnessSlider.Gui
 			this.btn_Save = new System.Windows.Forms.Button();
 			this.btn_Cancel = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
-			this.label2 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
 			this.timePicker_Hour = new System.Windows.Forms.NumericUpDown();
 			this.timePicker_Minute = new System.Windows.Forms.NumericUpDown();
-			this.numericUpDown_Brightness = new System.Windows.Forms.NumericUpDown();
 			this.checkBox_Enabled = new System.Windows.Forms.CheckBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.label4 = new System.Windows.Forms.Label();
+			this.numericUpDown_Brightness = new System.Windows.Forms.NumericUpDown();
 			((System.ComponentModel.ISupportInitialize)(this.timePicker_Hour)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.timePicker_Minute)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Brightness)).BeginInit();
 			this.groupBox1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Brightness)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// listBox_Schedules
@@ -69,7 +68,8 @@ namespace Win10_BrightnessSlider.Gui
 			// 
 			// btn_Save
 			// 
-			this.btn_Save.Location = new System.Drawing.Point(395, 279);
+			this.btn_Save.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.btn_Save.Location = new System.Drawing.Point(544, 279);
 			this.btn_Save.Name = "btn_Save";
 			this.btn_Save.Size = new System.Drawing.Size(101, 32);
 			this.btn_Save.TabIndex = 3;
@@ -79,7 +79,8 @@ namespace Win10_BrightnessSlider.Gui
 			// 
 			// btn_Cancel
 			// 
-			this.btn_Cancel.Location = new System.Drawing.Point(503, 279);
+			this.btn_Cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.btn_Cancel.Location = new System.Drawing.Point(652, 279);
 			this.btn_Cancel.Name = "btn_Cancel";
 			this.btn_Cancel.Size = new System.Drawing.Size(101, 32);
 			this.btn_Cancel.TabIndex = 4;
@@ -95,15 +96,6 @@ namespace Win10_BrightnessSlider.Gui
 			this.label1.Size = new System.Drawing.Size(41, 16);
 			this.label1.TabIndex = 5;
 			this.label1.Text = "Time:";
-			// 
-			// label2
-			// 
-			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(17, 71);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(88, 16);
-			this.label2.TabIndex = 6;
-			this.label2.Text = "Brightness %:";
 			// 
 			// label3
 			// 
@@ -140,14 +132,6 @@ namespace Win10_BrightnessSlider.Gui
 			this.timePicker_Minute.TabIndex = 9;
 			this.timePicker_Minute.ValueChanged += new System.EventHandler(this.timePicker_ValueChanged);
 			// 
-			// numericUpDown_Brightness
-			// 
-			this.numericUpDown_Brightness.Location = new System.Drawing.Point(107, 69);
-			this.numericUpDown_Brightness.Name = "numericUpDown_Brightness";
-			this.numericUpDown_Brightness.Size = new System.Drawing.Size(115, 22);
-			this.numericUpDown_Brightness.TabIndex = 10;
-			this.numericUpDown_Brightness.ValueChanged += new System.EventHandler(this.numericUpDown_Brightness_ValueChanged);
-			// 
 			// checkBox_Enabled
 			// 
 			this.checkBox_Enabled.AutoSize = true;
@@ -161,17 +145,19 @@ namespace Win10_BrightnessSlider.Gui
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox1.Controls.Add(this.label4);
 			this.groupBox1.Controls.Add(this.label1);
 			this.groupBox1.Controls.Add(this.checkBox_Enabled);
-			this.groupBox1.Controls.Add(this.label2);
 			this.groupBox1.Controls.Add(this.numericUpDown_Brightness);
 			this.groupBox1.Controls.Add(this.label3);
 			this.groupBox1.Controls.Add(this.timePicker_Minute);
 			this.groupBox1.Controls.Add(this.timePicker_Hour);
 			this.groupBox1.Location = new System.Drawing.Point(341, 13);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(263, 260);
+			this.groupBox1.Size = new System.Drawing.Size(412, 260);
 			this.groupBox1.TabIndex = 12;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Edit Schedule";
@@ -186,11 +172,19 @@ namespace Win10_BrightnessSlider.Gui
 			this.label4.Text = "Select a schedule from the list to edit, or click Add to create a new one.\r\n\r\nCha" +
     "nges are saved automatically.";
 			// 
+			// numericUpDown_Brightness
+			// 
+			this.numericUpDown_Brightness.Location = new System.Drawing.Point(288, 69);
+			this.numericUpDown_Brightness.Name = "numericUpDown_Brightness";
+			this.numericUpDown_Brightness.Size = new System.Drawing.Size(111, 22);
+			this.numericUpDown_Brightness.TabIndex = 10;
+			this.numericUpDown_Brightness.ValueChanged += new System.EventHandler(this.numericUpDown_Brightness_ValueChanged);
+			// 
 			// ScheduleEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(622, 324);
+			this.ClientSize = new System.Drawing.Size(771, 324);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.btn_Cancel);
 			this.Controls.Add(this.btn_Save);
@@ -205,9 +199,9 @@ namespace Win10_BrightnessSlider.Gui
 			this.Load += new System.EventHandler(this.ScheduleEditor_Load);
 			((System.ComponentModel.ISupportInitialize)(this.timePicker_Hour)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.timePicker_Minute)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Brightness)).EndInit();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Brightness)).EndInit();
 			this.ResumeLayout(false);
 
         }
@@ -220,13 +214,12 @@ namespace Win10_BrightnessSlider.Gui
         private System.Windows.Forms.Button btn_Save;
         private System.Windows.Forms.Button btn_Cancel;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown timePicker_Hour;
         private System.Windows.Forms.NumericUpDown timePicker_Minute;
-        private System.Windows.Forms.NumericUpDown numericUpDown_Brightness;
         private System.Windows.Forms.CheckBox checkBox_Enabled;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label4;
-    }
+		private System.Windows.Forms.NumericUpDown numericUpDown_Brightness;
+	}
 }

@@ -27,6 +27,8 @@ namespace Win10_BrightnessSlider.Gui
             ModernizeUI();
             CreateDayCheckboxes();
             CreatePerMonitorControls();
+
+			new ListBoxEx().initFix(listBox_Schedules);
 		}
 
 		
@@ -52,7 +54,7 @@ namespace Win10_BrightnessSlider.Gui
             listBox_Schedules.Font = new Font("Segoe UI", 9F);
             listBox_Schedules.Size = new Size(300 , 380 ).ApplyDpiFix_ToSize(); 
 
-			groupBox1.Location = new Point(318, 12);
+			groupBox1.Location = new Point(318, 12).ApplyDpiFix_ToPoint();
             groupBox1.Size = new Size(390 , 380 ).ApplyDpiFix_ToSize();
             groupBox1.Text = "Edit Schedule";
 
@@ -82,15 +84,15 @@ namespace Win10_BrightnessSlider.Gui
         private void CreateDayCheckboxes()
         {
             dayCheckboxes = new Dictionary<DayOfWeek, CheckBox>();
-            var dayNames = new[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-            var days = new[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
+            var dayNames = new[] {  "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" , "Sun", };
+            var days = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday , DayOfWeek.Sunday };
 
             for (int i = 0; i < days.Length; i++)
             {
                 var cb = new CheckBox
                 {
                     Text = dayNames[i],
-                    Location = new System.Drawing.Point(15, 148 + (i * 24)),  // Vertical stack
+                    Location = new System.Drawing.Point(15, 148 + (i * 24)).ApplyDpiFix_ToPoint(),  // Vertical stack
                     Size = new System.Drawing.Size(70, 20).ApplyDpiFix_ToSize(),
                     Checked = true,
                     Font = new System.Drawing.Font("Segoe UI", 9F),
@@ -141,8 +143,8 @@ namespace Win10_BrightnessSlider.Gui
             var btnWeekends = new Button
             {
                 Text = "Weekends",
-                Location = new System.Drawing.Point(95, 176),
-                Size = new System.Drawing.Size(75, 24),
+                Location = new System.Drawing.Point(95, 176).ApplyDpiFix_ToPoint(),
+                Size = new System.Drawing.Size(75, 24).ApplyDpiFix_ToSize(),
                 Font = new System.Drawing.Font("Segoe UI", 8F),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = System.Drawing.Color.FromArgb(230, 230, 230),
@@ -284,7 +286,7 @@ namespace Win10_BrightnessSlider.Gui
                 var lblNoMonitors = new Label
                 {
                     Text = "No monitors detected",
-                    Location = new Point(5, 10),
+                    Location = new Point(5, 10).ApplyDpiFix_ToPoint(),
                     AutoSize = true,
                     ForeColor = Color.Gray
                 };
@@ -581,6 +583,9 @@ namespace Win10_BrightnessSlider.Gui
         private void checkBox_Enabled_CheckedChanged(object sender, EventArgs e)
         {
             if (!isLoading) UpdateCurrentSchedule();
+
+			listBox_Schedules.Refresh();
+			listBox_Schedules.Invalidate();
         }
 
         private void UpdateCurrentSchedule()
@@ -628,3 +633,66 @@ public static class Dpihelper
 	}
 
 }
+
+
+/// <summary>
+/// fix when unselected -- color selected itemm  "maybe gray- or DASH"
+/// </summary>
+public class ListBoxEx : ListBox 
+{
+	ListBox listBox1;
+	public void initFix(ListBox _listBox1) 
+	{
+		return;
+
+		listBox1 = _listBox1;
+
+		listBox1.DrawMode = DrawMode.OwnerDrawFixed;
+
+		listBox1.DrawItem -= ListBox1_DrawItem;
+		listBox1.DrawItem += ListBox1_DrawItem;
+	}
+
+
+	//public ListBoxEx()
+	//{
+	//	this.DrawMode = DrawMode.OwnerDrawFixed;
+	//}
+
+	private void ListBox1_DrawItem(object sender, DrawItemEventArgs e)
+	{
+		// If there are no items, don't do anything
+		if (e.Index < 0) return;
+
+		// Check if the item is currently selected
+		bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+
+		// Choose your colors
+		// We force it to stay Blue (or your choice) even when focus is lost
+		Color backColor = isSelected ? SystemColors.InactiveCaption : listBox1.BackColor;
+		Color foreColor = isSelected ? SystemColors.InactiveCaptionText : listBox1.ForeColor;
+
+		if (listBox1.Focused)
+		{
+			// Choose your colors
+			// We force it to stay Blue (or your choice) even when focus is lost
+			backColor = isSelected ? SystemColors.Highlight : listBox1.BackColor;
+			foreColor = isSelected ? SystemColors.HighlightText : listBox1.ForeColor;
+		}
+
+		// 1. Draw the background
+		using (SolidBrush brush = new SolidBrush(backColor))
+		{
+			e.Graphics.FillRectangle(brush, e.Bounds);
+		}
+
+		// 2. Draw the text
+		string text = listBox1.Items[e.Index].ToString();
+		TextRenderer.DrawText(e.Graphics, text, e.Font, e.Bounds, foreColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+
+		// 3. Optional: Draw the focus rectangle (the dotted line) 
+		// If you don't like the dotted line, just comment this out.
+		e.DrawFocusRectangle();
+	}
+
+} 
