@@ -40,7 +40,7 @@ namespace Win10_BrightnessSlider.Gui
 			// 
 			this.listBox_Schedules.FormattingEnabled = true;
 			this.listBox_Schedules.ItemHeight = 16;
-			this.listBox_Schedules.Location = new System.Drawing.Point(14, 13);
+			this.listBox_Schedules.Location = new System.Drawing.Point(14, 21);
 			this.listBox_Schedules.Name = "listBox_Schedules";
 			this.listBox_Schedules.Size = new System.Drawing.Size(319, 260);
 			this.listBox_Schedules.TabIndex = 0;
@@ -48,7 +48,7 @@ namespace Win10_BrightnessSlider.Gui
 			// 
 			// btn_Add
 			// 
-			this.btn_Add.Location = new System.Drawing.Point(14, 279);
+			this.btn_Add.Location = new System.Drawing.Point(14, 284);
 			this.btn_Add.Name = "btn_Add";
 			this.btn_Add.Size = new System.Drawing.Size(101, 32);
 			this.btn_Add.TabIndex = 1;
@@ -58,7 +58,7 @@ namespace Win10_BrightnessSlider.Gui
 			// 
 			// btn_Remove
 			// 
-			this.btn_Remove.Location = new System.Drawing.Point(121, 279);
+			this.btn_Remove.Location = new System.Drawing.Point(121, 284);
 			this.btn_Remove.Name = "btn_Remove";
 			this.btn_Remove.Size = new System.Drawing.Size(101, 32);
 			this.btn_Remove.TabIndex = 2;
@@ -69,7 +69,7 @@ namespace Win10_BrightnessSlider.Gui
 			// btn_Save
 			// 
 			this.btn_Save.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.btn_Save.Location = new System.Drawing.Point(599, 279);
+			this.btn_Save.Location = new System.Drawing.Point(558, 344);
 			this.btn_Save.Name = "btn_Save";
 			this.btn_Save.Size = new System.Drawing.Size(101, 32);
 			this.btn_Save.TabIndex = 3;
@@ -80,7 +80,7 @@ namespace Win10_BrightnessSlider.Gui
 			// btn_Cancel
 			// 
 			this.btn_Cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.btn_Cancel.Location = new System.Drawing.Point(707, 279);
+			this.btn_Cancel.Location = new System.Drawing.Point(666, 344);
 			this.btn_Cancel.Name = "btn_Cancel";
 			this.btn_Cancel.Size = new System.Drawing.Size(101, 32);
 			this.btn_Cancel.TabIndex = 4;
@@ -157,7 +157,7 @@ namespace Win10_BrightnessSlider.Gui
 			this.groupBox1.Controls.Add(this.timePicker_Hour);
 			this.groupBox1.Location = new System.Drawing.Point(341, 13);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(467, 260);
+			this.groupBox1.Size = new System.Drawing.Size(426, 325);
 			this.groupBox1.TabIndex = 12;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Edit Schedule";
@@ -174,7 +174,7 @@ namespace Win10_BrightnessSlider.Gui
 			// 
 			// numericUpDown_Brightness
 			// 
-			this.numericUpDown_Brightness.Location = new System.Drawing.Point(288, 69);
+			this.numericUpDown_Brightness.Location = new System.Drawing.Point(309, 59);
 			this.numericUpDown_Brightness.Name = "numericUpDown_Brightness";
 			this.numericUpDown_Brightness.Size = new System.Drawing.Size(111, 22);
 			this.numericUpDown_Brightness.TabIndex = 10;
@@ -184,7 +184,7 @@ namespace Win10_BrightnessSlider.Gui
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(826, 324);
+			this.ClientSize = new System.Drawing.Size(785, 389);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.btn_Cancel);
 			this.Controls.Add(this.btn_Save);

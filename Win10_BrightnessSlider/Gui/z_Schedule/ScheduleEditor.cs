@@ -52,7 +52,7 @@ namespace Win10_BrightnessSlider.Gui
 
             // Reposition main controls
             listBox_Schedules.Font = new Font("Segoe UI", 9F);
-            listBox_Schedules.Size = new Size(300 , 380 ).ApplyDpiFix_ToSize(); 
+            listBox_Schedules.Size = new Size(300 , 338 ).ApplyDpiFix_ToSize(); 
 
 			groupBox1.Location = new Point(318, 12).ApplyDpiFix_ToPoint();
             groupBox1.Size = new Size(390+40 , 380 ).ApplyDpiFix_ToSize();
@@ -69,8 +69,8 @@ namespace Win10_BrightnessSlider.Gui
             }
 
             // Position buttons at bottom
-            btn_Add.Location = new Point(12, 405).ApplyDpiFix_ToPoint();
-            btn_Remove.Location = new Point(106, 405).ApplyDpiFix_ToPoint();
+            btn_Add.Location = new Point(12, 405-50).ApplyDpiFix_ToPoint();
+            btn_Remove.Location = new Point(106, 405-50).ApplyDpiFix_ToPoint();
 			btn_Save.Location = new Point(526, 405).ApplyDpiFix_ToPoint();
 			btn_Cancel.Location = new Point(620, 405).ApplyDpiFix_ToPoint();
 
