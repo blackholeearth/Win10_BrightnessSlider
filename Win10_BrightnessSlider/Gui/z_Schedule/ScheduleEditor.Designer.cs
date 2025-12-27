@@ -69,7 +69,7 @@ namespace Win10_BrightnessSlider.Gui
 			// btn_Save
 			// 
 			this.btn_Save.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.btn_Save.Location = new System.Drawing.Point(544, 279);
+			this.btn_Save.Location = new System.Drawing.Point(599, 279);
 			this.btn_Save.Name = "btn_Save";
 			this.btn_Save.Size = new System.Drawing.Size(101, 32);
 			this.btn_Save.TabIndex = 3;
@@ -80,7 +80,7 @@ namespace Win10_BrightnessSlider.Gui
 			// btn_Cancel
 			// 
 			this.btn_Cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.btn_Cancel.Location = new System.Drawing.Point(652, 279);
+			this.btn_Cancel.Location = new System.Drawing.Point(707, 279);
 			this.btn_Cancel.Name = "btn_Cancel";
 			this.btn_Cancel.Size = new System.Drawing.Size(101, 32);
 			this.btn_Cancel.TabIndex = 4;
@@ -157,7 +157,7 @@ namespace Win10_BrightnessSlider.Gui
 			this.groupBox1.Controls.Add(this.timePicker_Hour);
 			this.groupBox1.Location = new System.Drawing.Point(341, 13);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(412, 260);
+			this.groupBox1.Size = new System.Drawing.Size(467, 260);
 			this.groupBox1.TabIndex = 12;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Edit Schedule";
@@ -184,7 +184,7 @@ namespace Win10_BrightnessSlider.Gui
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(771, 324);
+			this.ClientSize = new System.Drawing.Size(826, 324);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.btn_Cancel);
 			this.Controls.Add(this.btn_Save);

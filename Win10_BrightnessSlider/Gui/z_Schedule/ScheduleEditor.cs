@@ -48,14 +48,14 @@ namespace Win10_BrightnessSlider.Gui
             groupBox1.ForeColor = Color.FromArgb(60, 60, 60);
 
 			// Enlarge form for per-monitor controls
-			this.ClientSize = new Size(720 , 450 ).ApplyDpiFix_ToSize(); 
+			this.ClientSize = new Size(760 , 450 ).ApplyDpiFix_ToSize(); 
 
             // Reposition main controls
             listBox_Schedules.Font = new Font("Segoe UI", 9F);
             listBox_Schedules.Size = new Size(300 , 380 ).ApplyDpiFix_ToSize(); 
 
 			groupBox1.Location = new Point(318, 12).ApplyDpiFix_ToPoint();
-            groupBox1.Size = new Size(390 , 380 ).ApplyDpiFix_ToSize();
+            groupBox1.Size = new Size(390+40 , 380 ).ApplyDpiFix_ToSize();
             groupBox1.Text = "Edit Schedule";
 
             // Style buttons
