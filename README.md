@@ -32,9 +32,11 @@ targeting laptops.
 
 #### Features
 
-* Supports ddc/ci monitors 
+* Supports ddc/ci monitors
 * Seperate Sliders For Multiple Monitors
 * Volume like Slider to Change Monitor Brightness
+* **Preset Buttons** - Quick brightness presets (0%, 25%, 50%, 75%, 100%)
+* **Scheduled Brightness** - Auto-adjust brightness based on time of day with day-of-week selection
 * Option to Run At Startup
 * Ability to *"Rescan/Detect Monitor"* after a Monitor Plugged in/out
 
