@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Win10_BrightnessSlider.Gui
@@ -582,11 +584,27 @@ namespace Win10_BrightnessSlider.Gui
 
         private void checkBox_Enabled_CheckedChanged(object sender, EventArgs e)
         {
-            if (!isLoading) UpdateCurrentSchedule();
+			if (!isLoading)
+			{
+				// 1. Save the current index
+				int selectedIndex = listBox_Schedules.SelectedIndex;
 
-			listBox_Schedules.Refresh();
-			listBox_Schedules.Invalidate();
-        }
+				// 2. Update the data
+				UpdateCurrentSchedule();
+
+				// 3. Restore the index (UpdateScheduleList clears items, so index is lost)
+				if (selectedIndex >= 0 && selectedIndex < listBox_Schedules.Items.Count)
+				{
+					listBox_Schedules.SelectedIndex = selectedIndex;
+				}
+
+				// 4. Force immediate repaint
+				listBox_Schedules.Invalidate();
+				listBox_Schedules.Update();
+			}
+
+
+		}
 
         private void UpdateCurrentSchedule()
         {
@@ -648,51 +666,65 @@ public class ListBoxEx : ListBox
 		listBox1 = _listBox1;
 
 		listBox1.DrawMode = DrawMode.OwnerDrawFixed;
+		// --- DPI FIX FOR HEIGHT ---
+		// Font.Height is the raw text height. 
+		// We add padding (e.g., 6 pixels) and multiply it by your DPI factor.
+		// This creates the "space" above and below the text.
+		int padding = (int)(3 * Dpihelper.multiplier);
+		listBox1.ItemHeight = listBox1.Font.Height + padding;
 
 		listBox1.DrawItem -= ListBox1_DrawItem;
 		listBox1.DrawItem += ListBox1_DrawItem;
 	}
 
-
-	//public ListBoxEx()
-	//{
-	//	this.DrawMode = DrawMode.OwnerDrawFixed;
-	//}
-
 	private void ListBox1_DrawItem(object sender, DrawItemEventArgs e)
 	{
-		// If there are no items, don't do anything
 		if (e.Index < 0) return;
 
-		// Check if the item is currently selected
 		bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
 
-		// Choose your colors
-		// We force it to stay Blue (or your choice) even when focus is lost
-		Color backColor = isSelected ? SystemColors.InactiveCaption : listBox1.BackColor;
-		Color foreColor = isSelected ? SystemColors.InactiveCaptionText : listBox1.ForeColor;
+		// COLORS:
+		// If selected, we use Highlight (Blue) even if the ListBox isn't focused.
+		// This prevents the "confusion" when the user clicks the checkbox.
+		Color backColor = isSelected ? SystemColors.Highlight : listBox1.BackColor;
+		Color foreColor = isSelected ? SystemColors.HighlightText : listBox1.ForeColor;
 
-		if (listBox1.Focused)
+		// Optional: If you WANT it to look slightly different when not focused, 
+		// use a slightly lighter blue, but NOT gray (gray looks like nothing is selected).
+		if (isSelected && !listBox1.Focused)
 		{
-			// Choose your colors
-			// We force it to stay Blue (or your choice) even when focus is lost
-			backColor = isSelected ? SystemColors.Highlight : listBox1.BackColor;
-			foreColor = isSelected ? SystemColors.HighlightText : listBox1.ForeColor;
+			backColor = Color.FromArgb(200, 220, 240); // Light Blue
+			foreColor = Color.Black;
 		}
 
-		// 1. Draw the background
+		// 1. Draw Background
 		using (SolidBrush brush = new SolidBrush(backColor))
 		{
 			e.Graphics.FillRectangle(brush, e.Bounds);
 		}
 
-		// 2. Draw the text
+		// 2. Draw Text
 		string text = listBox1.Items[e.Index].ToString();
-		TextRenderer.DrawText(e.Graphics, text, e.Font, e.Bounds, foreColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+		TextRenderer.DrawText(e.Graphics, text, e.Font, e.Bounds, foreColor,
+			TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
 
-		// 3. Optional: Draw the focus rectangle (the dotted line) 
-		// If you don't like the dotted line, just comment this out.
-		e.DrawFocusRectangle();
+		// 3. THE DASHED LINE (Always visible on selected item)
+		if (isSelected)
+		{
+			using (Pen dottedPen = new Pen(foreColor)) // Match text color
+			{
+				dottedPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
+				Rectangle rect = e.Bounds;
+				rect.Width -= 1;
+				rect.Height -= 1;
+				e.Graphics.DrawRectangle(dottedPen, rect);
+			}
+		}
+
 	}
+
+
+
+
 
 } 
