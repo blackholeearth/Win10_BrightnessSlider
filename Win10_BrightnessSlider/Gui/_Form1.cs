@@ -1816,7 +1816,6 @@ echo Proxy:ON -  AutoDetect:ON
 
             return "On";
         }
-
         private string ProxyOFF()
         {
             var script =
@@ -1838,43 +1837,6 @@ echo.
             return "Off";
         }
 
-
-        static (string output, string error) ExecuteCMD_freezes(string cmdScript)
-        {
-            var pi = new ProcessStartInfo("cmd.exe"); // $@"/C ""{cmdScript}"" "
-            pi.CreateNoWindow = true;
-            pi.UseShellExecute = false;
-            pi.RedirectStandardInput = true; //improtant to writeline
-            pi.RedirectStandardError = true;
-            pi.RedirectStandardOutput = true;
-            var process = Process.Start(pi);
-
-            process.StandardInput.WriteLineAsync(cmdScript);
-
-            var sbError = new StringBuilder();
-            var sbOutput = new StringBuilder();
-
-            process.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
-            {
-                sbError.AppendLine(e.Data);
-                Debug.WriteLine("output>>" + e.Data);
-            };
-            process.BeginOutputReadLine();
-
-            process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
-            {
-                sbError.AppendLine(e.Data);
-                Debug.WriteLine("error>>" + e.Data);
-            };
-            process.BeginErrorReadLine();
-
-            process.WaitForExit();
-
-            Debug.WriteLine("ExitCode: {0}", process.ExitCode);
-            process.Close();
-
-            return (sbOutput.ToString(), sbError.ToString());
-        }
 
 
         /// <summary>
