@@ -1373,24 +1373,11 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
             cms.Items.Add(mi1_aboutMe);
             cms.Items.Add(mi_update);
             cms.Items.Add("-");
-            //cms.Items.Add(mi_customTheme_onOff);
-            //mi_customTheme_onOff.ToolTipText = "Edit Colors in Settings.json File... :)";
-            //cms.Items.Add(mi_customTheme_EditFile);
-            //cms.Items.Add("-");
             cms.Items.Add(mi_log);
             cms.Items.Add(mi_rescanMon);
             cms.Items.Add("-");
             //cm.Items.Add(mi_RoundCorner);
 
-            //cms.Items.Add(mi_ShowButtons);
-            //cms.Items.Add(mi_ShowButtons_v2);
-            //cms.Items.Add("-");
-
-
-
-            //cms.Items.Add(mi_remapKey1);
-            //cms.Items.Add(mi_hotkey_everything);
-            //cms.Items.Add("-");
 
 
             var mi_extras = new ToolStripMenuItem("Extras");
