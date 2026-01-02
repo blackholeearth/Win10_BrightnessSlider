@@ -456,7 +456,26 @@ namespace Win10_BrightnessSlider
             ////requires ui to be visible, otherwise error.
             //var ucSlderLi = getUCSliderLi(); //var slider1 = ucSlderLi.FirstOrDefault();
 
-            var riScreen1 = riScreens.FirstOrDefault();
+            // Prefer the screen under the mouse (where the tray icon is),
+            // otherwise pick the first screen that reports a valid brightness,
+            // and finally fall back to the primary screen.
+            RichInfoScreen riScreen1 = null;
+            try
+            {
+                riScreen1 = riScreens.FirstOrDefault(r => r.Screen.Bounds.Contains(_Location));
+            }
+            catch { }
+
+            if (riScreen1 == null)
+            {
+                riScreen1 = riScreens.FirstOrDefault(r => r.GetBrightness() >= 0);
+            }
+
+            if (riScreen1 == null)
+            {
+                riScreen1 = riScreens.FirstOrDefault(r => r.Screen.Primary);
+            }
+
             if (riScreen1 is null)
                 return;
 
