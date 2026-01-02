@@ -77,29 +77,32 @@ namespace Win10_BrightnessSlider
         }
 
 
-/*
+		/*
 
-v1.8.28
-* fix slider buttons.. (downside: clicking rapidly on + - buttons will be slow for DXVA monitors )
+		v1.8.29
+		* fix wifi icon not detecting disconnect Reconnect.
+		
+		v1.8.28
+		* fix slider buttons.. (downside: clicking rapidly on + - buttons will be slow for DXVA monitors )
 
-v1.8.27
-* win+space > everthing ,  added error message.. "you need to install to default folder"
+		v1.8.27
+		* win+space > everthing ,  added error message.. "you need to install to default folder"
 
-v1.8.26
-* extras -> slider wButton , width is Back to Previous Size. - #182
+		v1.8.26
+		* extras -> slider wButton , width is Back to Previous Size. - #182
 
-v1.8.25
-* at win10 - gap between contexmenu and taskbar set to 1px;
-* Fixed: slider wButton right part is hidden/outside of screen - #182
+		v1.8.25
+		* at win10 - gap between contexmenu and taskbar set to 1px;
+		* Fixed: slider wButton right part is hidden/outside of screen - #182
 
-v1.8.24
-* (info discovered - not enabled/ not tested ). scan only for monitor plug_in/out, Not Usb.
-* Added Proxy Detection, and Proxy Icon
+		v1.8.24
+		* (info discovered - not enabled/ not tested ). scan only for monitor plug_in/out, Not Usb.
+		* Added Proxy Detection, and Proxy Icon
 
-v1.8.23
-* improved: system events are debounced
-* fixed: mouse freezes for 1sec, when app Starts* 
-	* migrated globalMouse to  **TolikPylypchuk/SharpHook**
+		v1.8.23
+		* improved: system events are debounced
+		* fixed: mouse freezes for 1sec, when app Starts* 
+			* migrated globalMouse to  **TolikPylypchuk/SharpHook**
 
 */
 		static string version = "1.9.1";
@@ -1469,24 +1472,11 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
             cms.Items.Add(mi1_aboutMe);
             cms.Items.Add(mi_update);
             cms.Items.Add("-");
-            //cms.Items.Add(mi_customTheme_onOff);
-            //mi_customTheme_onOff.ToolTipText = "Edit Colors in Settings.json File... :)";
-            //cms.Items.Add(mi_customTheme_EditFile);
-            //cms.Items.Add("-");
             cms.Items.Add(mi_log);
             cms.Items.Add(mi_rescanMon);
             cms.Items.Add("-");
             //cm.Items.Add(mi_RoundCorner);
 
-            //cms.Items.Add(mi_ShowButtons);
-            //cms.Items.Add(mi_ShowButtons_v2);
-            //cms.Items.Add("-");
-
-
-
-            //cms.Items.Add(mi_remapKey1);
-            //cms.Items.Add(mi_hotkey_everything);
-            //cms.Items.Add("-");
 
 
             var mi_extras = new ToolStripMenuItem("Extras");
@@ -1680,7 +1670,9 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
                 NetworkChange.NetworkAvailabilityChanged -= NetworkChange_NetworkAvailabilityChanged;
                 NetworkChange.NetworkAvailabilityChanged += NetworkChange_NetworkAvailabilityChanged;
 
-            });
+				NetworkChange.NetworkAddressChanged -= NetworkChange_AddressChanged; //gemini says add this.?!
+				NetworkChange.NetworkAddressChanged += NetworkChange_AddressChanged;
+			});
 
 
             var cms = new ContextMenuStrip_win11();
@@ -1816,7 +1808,55 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
             }
         }
 
-        private void NetworkChange_NetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
+		// IP adresi değiştiğinde (örn: Wifi IP aldığında) çalışır.
+		// Bu genellikle AvailabilityChanged'den daha sonra çalışır ve daha güvenilirdir.
+		private void NetworkChange_AddressChanged(object sender, EventArgs e)
+		{
+			// Yine debounce/gecikme ile kontrol et
+			Task.Run(async () => {
+				await Task.Delay(2000); // 2 saniye bekle
+				this.Invoke((Action)delegate { Try_Set_Wifi_StatusText(); });
+			});
+		}
+		private void NetworkChange_NetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
+		{
+			if (e.IsAvailable)
+			{
+				// Olay tetiklendiğinde hemen kontrol etmek yerine,
+				// Arka planda birkaç kez deneyerek bağlantının tam oturmasını bekle.
+				Task.Run(async () =>
+				{
+					// 5 deneme yap (her biri 1.5 saniye arayla)
+					for (int i = 0; i < 5; i++)
+					{
+						// Netsh'den veriyi çek ama UI güncelleme (sadece kontrol et)
+						var info = show_WLan_info();
+
+						// Eğer durum "Connected" ise döngüyü kır ve UI güncelle
+						if (!string.IsNullOrWhiteSpace(info.isConnected) &&
+							 info.isConnected.Trim().ToLower().Contains("connected"))
+						{
+							break; // Bağlantı sağlandı, döngüden çık
+						}
+
+						// Bağlı değilse biraz bekle ve tekrar dene
+						await Task.Delay(1500);
+					}
+
+					// Son durumu ekrana bas (UI Thread içinde)
+					this.Invoke((Action)delegate { Try_Set_Wifi_StatusText(); });
+				});
+			}
+			else
+			{
+				// İnternet koptuysa beklemeye gerek yok, direkt ikonu değiştir.
+				this.Invoke((Action)delegate {
+					set_wifi_Image_notConnected();
+					notifyIcon_wifi.Text = "Network is Not Available !";
+				});
+			}
+		}
+		private void NetworkChange_NetworkAvailabilityChanged_old(object sender, NetworkAvailabilityEventArgs e)
         {
             if (e.IsAvailable)
             {
@@ -1829,9 +1869,7 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
                 set_wifi_Image_notConnected();
                 notifyIcon_wifi.Text = "Network is Not Available !";
             }
-
-
-
+			 
         }
 
         private void Try_Set_Wifi_StatusText()
@@ -1930,7 +1968,6 @@ echo Proxy:ON -  AutoDetect:ON
 
             return "On";
         }
-
         private string ProxyOFF()
         {
             var script =
@@ -1952,43 +1989,6 @@ echo.
             return "Off";
         }
 
-
-        static (string output, string error) ExecuteCMD_freezes(string cmdScript)
-        {
-            var pi = new ProcessStartInfo("cmd.exe"); // $@"/C ""{cmdScript}"" "
-            pi.CreateNoWindow = true;
-            pi.UseShellExecute = false;
-            pi.RedirectStandardInput = true; //improtant to writeline
-            pi.RedirectStandardError = true;
-            pi.RedirectStandardOutput = true;
-            var process = Process.Start(pi);
-
-            process.StandardInput.WriteLineAsync(cmdScript);
-
-            var sbError = new StringBuilder();
-            var sbOutput = new StringBuilder();
-
-            process.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
-            {
-                sbError.AppendLine(e.Data);
-                Debug.WriteLine("output>>" + e.Data);
-            };
-            process.BeginOutputReadLine();
-
-            process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
-            {
-                sbError.AppendLine(e.Data);
-                Debug.WriteLine("error>>" + e.Data);
-            };
-            process.BeginErrorReadLine();
-
-            process.WaitForExit();
-
-            Debug.WriteLine("ExitCode: {0}", process.ExitCode);
-            process.Close();
-
-            return (sbOutput.ToString(), sbError.ToString());
-        }
 
 
         /// <summary>
