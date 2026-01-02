@@ -104,8 +104,8 @@ namespace Win10_BrightnessSlider
 		* fixed: mouse freezes for 1sec, when app Starts* 
 			* migrated globalMouse to  **TolikPylypchuk/SharpHook**
 
-		*/
-		static string version = "1.8.29";
+*/
+		static string version = "1.9.1";
 
         /// <summary>
         /// is win11
@@ -255,14 +255,35 @@ namespace Win10_BrightnessSlider
             SetColors_themeAware_RightClickMenus();
             GUI_Update__CtxMenu_isRunAtStartup();
 
-            //GUI_Update_StatesOnControls(); //also set CtxMenu Run At StartUp
+			//GUI_Update_StatesOnControls(); //also set CtxMenu Run At StartUp
 
-            notifyIcon_bright.Text = "Win10_BrightnessSlider";
+			// Initialize scheduler AFTER monitors are ready
+			//InitializeScheduler();
+			init_Scheduler_ADDON();
+
+
+			notifyIcon_bright.Text = "Win10_BrightnessSlider";
         }
 
+		private void init_Scheduler_ADDON()
+		{
+			try
+			{
+				var scheduler = new z_Schedule.SchedulerAddon(this);
+				scheduler.Initialize();
+
+				tbxLog_AppendText("\r\n Scheduler ADDON initialized...");
+			}
+			catch (Exception ex)
+			{
+				// Show error to screen so we know why it failed
+				MessageBox.Show("Scheduler Addon Error:\n" + ex.Message + "\n\n" + ex.StackTrace);
+				RamLogger.Log("Scheduler ADDON Error: " + ex.Message);
+			}
+		}
 
 
-        private void wire_events()
+		private void wire_events()
         {
             tbxLog_AppendText("\r\n wire_events - mglobal_hook ... ");
             //clicked outside windows--  deactivate doesnt work every time.
@@ -680,8 +701,19 @@ namespace Win10_BrightnessSlider
                 //foreach (Control ctl in fLayPnl1.Controls){ ctl.Dispose(); }
                 fLayPnl1.Controls.Clear();
 
-				//foreach (var riscrX in riScreens)
-				for (int i = 0; i < riScreens.Count; i++)
+                // Add "All Monitors" preset buttons at top if preset mode is enabled and multiple monitors
+                if (settings.Show_PresetButtons && riScreens.Count > 1)
+                {
+                    var allMonitorsControl = new Gui.uc_AllMonitorsPresets()
+                    {
+                        Margin = Padding.Empty,
+                        BackColor = BackColor1,
+                    };
+                    allMonitorsControl.SetGUIColors(BackColor1, TextColor1, BorderColor1);
+                    fLayPnl1.Controls.Add(allMonitorsControl);
+                }
+
+                for (int i = 0; i < riScreens.Count; i++)
                 {
                     var riscrX = riScreens[i];
 
@@ -693,6 +725,8 @@ namespace Win10_BrightnessSlider
                         ucSldr = newSlider3_wButton_UC(riscrX);
                     else if (settings.Show_PlusMinusButtons_v2)
                         ucSldr = newSlider3_buttonsOnly_UC(riscrX);
+                    else if (settings.Show_PresetButtons)
+                        ucSldr = newSlider3_wPresets_UC(riscrX);
                     else
                         ucSldr = newSlider3_UC(riscrX);
 
@@ -826,12 +860,26 @@ namespace Win10_BrightnessSlider
             ucSldr.riScreen = riscrX;
 
 
-            //------additional for 
+            //------additional for
             ucSldr.SetGUIColors(BackColor1, TextColor1, BorderColor1);
             //ucSldr_wb._uc_brSlider3.Parent = this;
             this.Width = ucSldr.Width;
 
             return ucSldr;
+        }
+        private Control newSlider3_wPresets_UC(RichInfoScreen riscrX)
+        {
+            var ucSldr_wPresets = new Gui.uc_brSlider3_wPresets()
+            {
+                Margin = Padding.Empty,
+                BackColor = BackColor1,
+            };
+
+            var ucSldr = (uc_brSlider3)newSlider3_UC(riscrX);
+            ucSldr_wPresets.SetGUIColors(BackColor1, TextColor1, BorderColor1, ucSldr);
+            this.Width = ucSldr_wPresets.Width;
+
+            return ucSldr_wPresets;
         }
 
 
@@ -864,10 +912,15 @@ namespace Win10_BrightnessSlider
         }
 
 
-        //slider interface, 2 and 3
+       
+        /// --slider interface, 2 and 3
         private List<Iuc_brSlider> getUCSliderList()
         {
             return fLayPnl1.Controls.OfType<Iuc_brSlider>().ToList();
+        }
+        public bool HasAllMonitorsControl()
+        {
+            return fLayPnl1.Controls.OfType<Gui.uc_AllMonitorsPresets>().Any();
         }
         public void FixFormHeight()
         {
@@ -875,7 +928,16 @@ namespace Win10_BrightnessSlider
 
             try
             {
-                this.Height = ucSlderLi.Count() * ucSlderLi[0].Height;
+                int totalHeight = ucSlderLi.Count() * ucSlderLi[0].Height;
+
+                // Add height of All Monitors control if present
+                var allMonitorsControl = fLayPnl1.Controls.OfType<Gui.uc_AllMonitorsPresets>().FirstOrDefault();
+                if (allMonitorsControl != null)
+                {
+                    totalHeight += allMonitorsControl.Height;
+                }
+
+                this.Height = totalHeight;
             }
             catch (Exception ex)
             {
@@ -1196,9 +1258,10 @@ namespace Win10_BrightnessSlider
             {
                 var text =
 @"
-Developer: blackholeearth 
+Developer: blackholeearth
+Contributors: SimplyAG (Preset Buttons, Scheduled Brightness, UI improvements)
 
-Official Site: 
+Official Site:
 https://github.com/blackholeearth/Win10_BrightnessSlider
 ";
                 MessageTextbox_Show(text);
@@ -1292,6 +1355,7 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
 
             var mi_ShowButtons = new ToolStripMenuItem("Show +/- Buttons wSlider");
             var mi_ShowButtons_v2 = new ToolStripMenuItem("Show +/- Buttons");
+            var mi_ShowPresetButtons = new ToolStripMenuItem("Show Preset Buttons");
 
             mi_ShowButtons.ToolTipText = "This is intended for TABLET  Users.";
             mi_ShowButtons.Checked = settingsX.Show_PlusMinusButtons;
@@ -1308,7 +1372,9 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
                     if (st.Show_PlusMinusButtons == true)
                     {
                         st.Show_PlusMinusButtons_v2 = false;
+                        st.Show_PresetButtons = false;
                         mi_ShowButtons_v2.Checked = false;
+                        mi_ShowPresetButtons.Checked = false;
                     }
                 });
 
@@ -1334,7 +1400,37 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
                     if (st.Show_PlusMinusButtons_v2 == true)
                     {
                         st.Show_PlusMinusButtons = false;
+                        st.Show_PresetButtons = false;
                         mi_ShowButtons.Checked = false;
+                        mi_ShowPresetButtons.Checked = false;
+                    }
+                });
+
+                //Application.Restart();
+                this.Width = new uc_brSlider3().Width;
+                Lightweight_Restart__Aka_PopulateSliders_ReapplyColors();
+                GUI_Update__AllSliderControls();
+                eSetVis(true);
+            };
+
+            mi_ShowPresetButtons.ToolTipText = "Quick preset buttons for 25%, 50%, 75%, 100% brightness";
+            mi_ShowPresetButtons.Checked = settingsX.Show_PresetButtons;
+            mi_ShowPresetButtons.Click += (snd, ev) =>
+            {
+                var _mix = snd as ToolStripMenuItem;
+                _mix.Checked = !_mix.Checked;
+
+                Settings_json.Update(st =>
+                {
+                    st.Show_PresetButtons = _mix.Checked;
+
+                    //toogle of other -radio style
+                    if (st.Show_PresetButtons == true)
+                    {
+                        st.Show_PlusMinusButtons = false;
+                        st.Show_PlusMinusButtons_v2 = false;
+                        mi_ShowButtons.Checked = false;
+                        mi_ShowButtons_v2.Checked = false;
                     }
                 });
 
@@ -1402,6 +1498,11 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
                 mi_extras.DropDown.Items.Add(new ToolStripMenuItem("___Tablet Buttons___") { Enabled = false });
                 mi_extras.DropDown.Items.Add(mi_ShowButtons);
                 mi_extras.DropDown.Items.Add(mi_ShowButtons_v2);
+                mi_extras.DropDown.Items.Add(mi_ShowPresetButtons);
+                //mi_extras.DropDown.Items.Add("-");
+                //mi_extras.DropDown.Items.Add(new ToolStripMenuItem("___Scheduled Brightness___") { Enabled = false });
+                //mi_extras.DropDown.Items.Add(CreateScheduledBrightnessMenuItem());
+                //mi_extras.DropDown.Items.Add(CreateEditSchedulesMenuItem());
                 mi_extras.DropDown.Items.Add("-");
                 mi_extras.DropDown.Items.Add(new ToolStripMenuItem("___ReMap Keys___") { Enabled = false });
                 mi_extras.DropDown.Items.Add(mi_remapKey1);

@@ -22,8 +22,8 @@ namespace Win10_BrightnessSlider
             get {  return Path.Combine(localAppData,  AppConfigFolderName,   LogName);    }
         }  
 
-        public static void Log(string msg, bool consoleWriteline = true, 
-            [CallerMemberName] string caller = "", [CallerFilePath] string file = "" , [CallerLineNumber] int line = -1) 
+        public static void Log(string msg, bool consoleWriteline = true,
+            [CallerMemberName] string caller = "", [CallerFilePath] string file = "" , [CallerLineNumber] int line = -1)
         {
 
             try
@@ -31,9 +31,15 @@ namespace Win10_BrightnessSlider
                 lock (_lock)
                 {
                     var fileName = Path.GetFileName(file);
+
+                    // Ensure directory exists
+                    var logDir = Path.GetDirectoryName(LogPath);
+                    if (!Directory.Exists(logDir))
+                        Directory.CreateDirectory(logDir);
+
                     File.AppendAllText(LogPath,
                         $"{ DateTime.UtcNow } ==>  Caller(File,Member,Line): {fileName}, {caller}, {line} \r\n" +
-                        $"{ msg } \r\n\r\n" 
+                        $"{ msg } \r\n\r\n"
                         );
                 }
             }
