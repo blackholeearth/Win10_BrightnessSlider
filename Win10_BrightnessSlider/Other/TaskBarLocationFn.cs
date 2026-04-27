@@ -14,8 +14,59 @@ namespace Win10_BrightnessSlider
 {
     public static class TaskBarLocationFn
     {
-        //GuiBehaviour
-        public enum TaskBarLocation { TOP, BOTTOM, LEFT, RIGHT }
+
+		//new via gemini..
+		public static Point GetSliderLocation(Size formSize, bool isWin11)
+		{
+			// 1. Get the screen where the mouse is. 
+			// This is the only way to solve Issue #16 honestly.
+			Screen scr = Screen.FromPoint(Cursor.Position);
+			Rectangle wa = scr.WorkingArea;
+			Rectangle bounds = scr.Bounds;
+
+			// 2. Padding logic (Win11 is floating, Win10 is flush)
+			int padding = isWin11 ? 12 : 2;
+
+			// 3. Determine taskbar location
+			bool isTop = wa.Top > bounds.Top;
+			bool isLeft = wa.Left > bounds.Left;
+			// Note: wa.Bottom < bounds.Bottom means Taskbar is at the bottom.
+
+			int x, y;
+
+			// --- X Calculation (Horizontal) ---
+			// Default: Align to Right side of the Working Area
+			x = wa.Right - formSize.Width - padding;
+
+			if (isLeft) // Taskbar is on the Left
+				x = wa.Left + padding;
+
+			// --- Y Calculation (Vertical) ---
+			// Default: Align to Bottom of the Working Area
+			// This uses the dynamic 'formSize.Height' you mentioned!
+			y = wa.Bottom - formSize.Height - padding;
+
+			if (isTop) // Taskbar is on the Top
+				y = wa.Top + padding;
+
+			// 4. RTL (Right-to-Left) Fix for Arabic/Hebrew users
+			if (System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft)
+			{
+				// If taskbar is horizontal (top/bottom), tray is usually on the left
+				if (wa.Width == bounds.Width)
+					x = wa.Left + padding;
+			}
+
+			return new Point(x, y);
+		}
+
+		//--------old---------------
+
+
+
+
+		//GuiBehaviour
+		public enum TaskBarLocation { TOP, BOTTOM, LEFT, RIGHT }
         public static TaskBarLocation GetTaskBarLocation()
         {
             TaskBarLocation taskBarLocation = TaskBarLocation.BOTTOM;

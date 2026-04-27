@@ -78,6 +78,8 @@ namespace Win10_BrightnessSlider
 
 
 		/*
+		v1.8.30
+		* fix show window at screen that contains mouseCursor. not PrimaryScreen.
 
 		v1.8.29
 		* fix wifi icon not detecting disconnect Reconnect.
@@ -105,7 +107,7 @@ namespace Win10_BrightnessSlider
 			* migrated globalMouse to  **TolikPylypchuk/SharpHook**
 
 		*/
-		static string version = "1.8.29";
+		static string version = "1.8.30";
 
         /// <summary>
         /// is win11
@@ -957,7 +959,7 @@ namespace Win10_BrightnessSlider
         /// GUI_Update_AllSliderControls(); <para/>
         /// eSetVis(true) <para/>
         /// </summary>
-        public void eSetVis(bool visible)
+        public void eSetVis_old(bool visible)
         {
             if (visible)
             {
@@ -1006,8 +1008,37 @@ namespace Win10_BrightnessSlider
 
         }
 
-        //hides when clicked outside of window.  
-        private void M_GlobalHook_MouseDownExt(object sender, MouseEventExtArgs e)
+		public void eSetVis(bool visible)
+		{
+			if (visible)
+			{
+				RamLogger.Log($"Show Slider - Win11: {isWindows11}");
+
+				this.WindowState = FormWindowState.Normal;
+				this.StartPosition = FormStartPosition.Manual;
+
+				// One simple call handles Win10, Win11, Multi-Monitor, and Taskbar location
+				this.Location = TaskBarLocationFn.GetSliderLocation(this.Size, isWindows11);
+
+				// Region for Rounded Corners (Win11 only)
+				this.Region = isWindows11 ? RoundBorders.GetRegion_ForRoundCorner(this.Size, 16) : null;
+
+				this.TopMost = true;
+				this.Show();
+				this.BringToFront();
+				this.Activate();
+				vis = true;
+			}
+			else
+			{
+				this.TopMost = false;
+				this.Hide();
+				vis = false;
+			}
+		}
+
+		//hides when clicked outside of window.  
+		private void M_GlobalHook_MouseDownExt(object sender, MouseEventExtArgs e)
         {
             hide_Window_whenClickedOutside(e.Location, e.IsMouseButtonDown);
 
@@ -1549,7 +1580,7 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
 
 
 
-        ///-----------------region Show wifi İcon.
+        /// ----------------- region Show wifi İcon.
         private void Add_Wifi_Icon()
         {
             //ntficon_wifi = new NotifyIcon(); //cretes new everytime
