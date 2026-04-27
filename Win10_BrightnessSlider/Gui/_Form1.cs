@@ -952,62 +952,69 @@ namespace Win10_BrightnessSlider
         }
 
 
-        /// <summary>
-        /// form show hide related funcs  
-        /// <para/>
-        /// if you need to update gui - call this  <para/>
-        /// GUI_Update_AllSliderControls(); <para/>
-        /// eSetVis(true) <para/>
-        /// </summary>
-        public void eSetVis_old(bool visible)
-        {
-            if (visible)
-            {
-                //-------only  calc if visible
+		/// <summary>
+		/// form show hide related funcs  
+		/// <para/>
+		/// if you need to update gui - call this  <para/>
+		/// GUI_Update_AllSliderControls(); <para/>
+		/// eSetVis(true) <para/>
+		/// </summary>
+		//public void eSetVis_old(bool visible)
+		//{
+		//    if (visible)
+		//    {
+		//        //-------only  calc if visible
 
-                //Console.WriteLine("eSetVis - vis:" + vis);
-                RamLogger.Log($"eSetVis(visible:{visible})  , vis:{vis}");
-                this.WindowState = FormWindowState.Normal;
-                this.StartPosition = FormStartPosition.Manual;
+		//        //Console.WriteLine("eSetVis - vis:" + vis);
+		//        RamLogger.Log($"eSetVis(visible:{visible})  , vis:{vis}");
+		//        this.WindowState = FormWindowState.Normal;
+		//        this.StartPosition = FormStartPosition.Manual;
 
-                var pvis = TaskBarLocationFn.calc_FormLoc_NearToTaskbarDate(this.Size);
-                //pvis = TaskBarLocationFn.ofset_FormLocation_p2_for_Win11_RoundBorder(pvis ,this.Size, win11_roundCorners_Enabled,this);
-                pvis = TaskBarLocationFn.offset_FormLoc_for_RoundCorners(new Rectangle(pvis, this.Size), isWindows11)
-                   .Location;
+		//        var pvis = TaskBarLocationFn.calc_FormLoc_NearToTaskbarDate(this.Size);
+		//        //pvis = TaskBarLocationFn.ofset_FormLocation_p2_for_Win11_RoundBorder(pvis ,this.Size, win11_roundCorners_Enabled,this);
+		//        pvis = TaskBarLocationFn.offset_FormLoc_for_RoundCorners(new Rectangle(pvis, this.Size), isWindows11)
+		//           .Location;
 
-                if (!TaskBarLocationFn.IsTaskbarVisible())
-                {
-                    pvis = TaskBarLocationFn.calc_FormLoc_NearToTaskbarDate_viaMouseLocation(this.Size);
-                    pvis = TaskBarLocationFn.offset_FormLoc_for_RoundCorners_CalculateAutoHide(new Rectangle(pvis, this.Size), isWindows11)
-                        .Location;
+		//        if (!TaskBarLocationFn.IsTaskbarVisible())
+		//        {
+		//            pvis = TaskBarLocationFn.calc_FormLoc_NearToTaskbarDate_viaMouseLocation(this.Size);
+		//            pvis = TaskBarLocationFn.offset_FormLoc_for_RoundCorners_CalculateAutoHide(new Rectangle(pvis, this.Size), isWindows11)
+		//                .Location;
 
-                }
-                //var phidden = new Point(-this.Width, -this.Height);
+		//        }
+		//        //var phidden = new Point(-this.Width, -this.Height);
 
 
 
-                //---show logic
-                this.Location = pvis;
+		//        //---show logic
+		//        this.Location = pvis;
 
-                this.Region = isWindows11 ? RoundBorders.GetRegion_ForRoundCorner(this.Size, 16) : null;
+		//        this.Region = isWindows11 ? RoundBorders.GetRegion_ForRoundCorner(this.Size, 16) : null;
 
-                this.TopMost = true;
-                this.Show();
-                this.BringToFront();
-                this.Activate();
+		//        this.TopMost = true;
+		//        this.Show();
+		//        this.BringToFront();
+		//        this.Activate();
 
-                vis = true;
-            }
-            else
-            {
-                this.TopMost = false;
-                this.Hide();
+		//        vis = true;
+		//    }
+		//    else
+		//    {
+		//        this.TopMost = false;
+		//        this.Hide();
 
-                vis = false;
-            }
+		//        vis = false;
+		//    }
 
-        }
+		//}
 
+		/// <summary>
+		/// form show hide related funcs  
+		/// <para/>
+		/// if you need to update gui - call this  <para/>
+		/// GUI_Update_AllSliderControls(); <para/>
+		/// eSetVis(true) <para/>
+		/// </summary>
 		public void eSetVis(bool visible)
 		{
 			if (visible)
