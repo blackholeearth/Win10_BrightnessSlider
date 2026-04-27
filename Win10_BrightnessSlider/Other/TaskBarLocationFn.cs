@@ -19,42 +19,44 @@ namespace Win10_BrightnessSlider
 		public static Point GetSliderLocation(Size formSize, bool isWin11)
 		{
 			// 1. Get the screen where the mouse is. 
-			// This is the only way to solve Issue #16 honestly.
+			// This solves Issue #16 because it uses absolute screen coordinates.
 			Screen scr = Screen.FromPoint(Cursor.Position);
 			Rectangle wa = scr.WorkingArea;
 			Rectangle bounds = scr.Bounds;
 
-			// 2. Padding logic (Win11 is floating, Win10 is flush)
-			int padding = isWin11 ? 12 : 2;
+			// 2. The "Honest" Offset.
+			// Windows 11 flyouts 'float' (margin 12). Windows 10 flyouts are 'flush' (margin 2).
+			int margin = isWin11 ? 12 : 2;
 
-			// 3. Determine taskbar location
-			bool isTop = wa.Top > bounds.Top;
-			bool isLeft = wa.Left > bounds.Left;
-			// Note: wa.Bottom < bounds.Bottom means Taskbar is at the bottom.
+			// 3. Detect Taskbar Side
+			bool isTaskbarTop = wa.Top > bounds.Top;
+			bool isTaskbarLeft = wa.Left > bounds.Left;
+			bool isTaskbarRight = wa.Right < bounds.Right;
+			// (If none of these, taskbar is at the Bottom)
 
 			int x, y;
 
-			// --- X Calculation (Horizontal) ---
-			// Default: Align to Right side of the Working Area
-			x = wa.Right - formSize.Width - padding;
+			// --- Calculate X (Horizontal) ---
+			// Default: Right side of the monitor
+			x = wa.Right - formSize.Width - margin;
 
-			if (isLeft) // Taskbar is on the Left
-				x = wa.Left + padding;
+			if (isTaskbarLeft)
+				x = wa.Left + margin;
 
-			// --- Y Calculation (Vertical) ---
-			// Default: Align to Bottom of the Working Area
-			// This uses the dynamic 'formSize.Height' you mentioned!
-			y = wa.Bottom - formSize.Height - padding;
+			// --- Calculate Y (Vertical) ---
+			// Default: Bottom of the monitor. 
+			// formSize.Height is used here, so 1, 2, or 3 sliders don't matter!
+			y = wa.Bottom - formSize.Height - margin;
 
-			if (isTop) // Taskbar is on the Top
-				y = wa.Top + padding;
+			if (isTaskbarTop)
+				y = wa.Top + margin;
 
-			// 4. RTL (Right-to-Left) Fix for Arabic/Hebrew users
+			// 4. RTL (Right-to-Left) Support for Arabic
+			// On standard Bottom/Top taskbars, the tray is on the Left in RTL systems.
 			if (System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft)
 			{
-				// If taskbar is horizontal (top/bottom), tray is usually on the left
-				if (wa.Width == bounds.Width)
-					x = wa.Left + padding;
+				if (!isTaskbarLeft && !isTaskbarRight)
+					x = wa.Left + margin;
 			}
 
 			return new Point(x, y);
