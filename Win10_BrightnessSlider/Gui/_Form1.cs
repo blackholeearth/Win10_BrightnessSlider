@@ -40,7 +40,42 @@ namespace Win10_BrightnessSlider
             }
         }
 
-        public Form1()
+
+		/*
+		v1.8.31
+		* fix first click not showing the popup...  "bcuz, previously, it was shown and visible in outside of Your Screen"
+
+		v1.8.30
+		* fix show window at screen that contains mouseCursor. not PrimaryScreen.
+
+		v1.8.29
+		* fix wifi icon not detecting disconnect Reconnect.
+
+		v1.8.28
+		* fix slider buttons.. (downside: clicking rapidly on + - buttons will be slow for DXVA monitors )
+
+		v1.8.27
+		* win+space > everthing ,  added error message.. "you need to install to default folder"
+
+		v1.8.26
+		* extras -> slider wButton , width is Back to Previous Size. - #182
+
+		v1.8.25
+		* at win10 - gap between contexmenu and taskbar set to 1px;
+		* Fixed: slider wButton right part is hidden/outside of screen - #182
+
+		v1.8.24
+		* (info discovered - not enabled/ not tested ). scan only for monitor plug_in/out, Not Usb.
+		* Added Proxy Detection, and Proxy Icon
+
+		v1.8.23
+		* improved: system events are debounced
+		* fixed: mouse freezes for 1sec, when app Starts* 
+			* migrated globalMouse to  **TolikPylypchuk/SharpHook**
+		*/
+		static string version = "1.8.31";
+
+		public Form1()
         {
             InitializeComponent();
             DoubleBuffered = true;
@@ -52,6 +87,7 @@ namespace Win10_BrightnessSlider
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new Point(-this.Width, -this.Height);
 
+			this.Shown += Form1_Shown;
 
             //Add_Wifi_Icon();
             //Remove_Wifi_Icon();
@@ -77,37 +113,8 @@ namespace Win10_BrightnessSlider
         }
 
 
-		/*
-		v1.8.30
-		* fix show window at screen that contains mouseCursor. not PrimaryScreen.
 
-		v1.8.29
-		* fix wifi icon not detecting disconnect Reconnect.
-		
-		v1.8.28
-		* fix slider buttons.. (downside: clicking rapidly on + - buttons will be slow for DXVA monitors )
-
-		v1.8.27
-		* win+space > everthing ,  added error message.. "you need to install to default folder"
-
-		v1.8.26
-		* extras -> slider wButton , width is Back to Previous Size. - #182
-
-		v1.8.25
-		* at win10 - gap between contexmenu and taskbar set to 1px;
-		* Fixed: slider wButton right part is hidden/outside of screen - #182
-
-		v1.8.24
-		* (info discovered - not enabled/ not tested ). scan only for monitor plug_in/out, Not Usb.
-		* Added Proxy Detection, and Proxy Icon
-
-		v1.8.23
-		* improved: system events are debounced
-		* fixed: mouse freezes for 1sec, when app Starts* 
-			* migrated globalMouse to  **TolikPylypchuk/SharpHook**
-
-		*/
-		static string version = "1.8.30";
+	
 
         /// <summary>
         /// is win11
@@ -262,9 +269,16 @@ namespace Win10_BrightnessSlider
             notifyIcon_bright.Text = "Win10_BrightnessSlider";
         }
 
+		private void Form1_Shown(object sender, EventArgs e)
+		{
+			// The very first time the form is "shown" , we hide it.
+			this.Hide();
+			vis = false;
+		}
 
 
-        private void wire_events()
+
+		private void wire_events()
         {
             tbxLog_AppendText("\r\n wire_events - mglobal_hook ... ");
             //clicked outside windows--  deactivate doesnt work every time.

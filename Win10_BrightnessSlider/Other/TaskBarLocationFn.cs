@@ -71,7 +71,7 @@ namespace Win10_BrightnessSlider
 
 
 		//GuiBehaviour
-		public enum TaskBarLocation { TOP, BOTTOM, LEFT, RIGHT }
+		//public enum TaskBarLocation { TOP, BOTTOM, LEFT, RIGHT }
         //public static TaskBarLocation GetTaskBarLocation()
         //{
         //    TaskBarLocation taskBarLocation = TaskBarLocation.BOTTOM;
