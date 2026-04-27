@@ -112,8 +112,6 @@ namespace Win10_BrightnessSlider
             //GloabalKeyHookFn.copilotKey_toggle(st.MapCopilotKey);
         }
 
-
-
 	
 
         /// <summary>
