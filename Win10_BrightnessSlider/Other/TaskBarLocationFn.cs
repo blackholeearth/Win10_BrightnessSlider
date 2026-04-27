@@ -69,109 +69,108 @@ namespace Win10_BrightnessSlider
 
 		//GuiBehaviour
 		public enum TaskBarLocation { TOP, BOTTOM, LEFT, RIGHT }
-        public static TaskBarLocation GetTaskBarLocation()
-        {
-            TaskBarLocation taskBarLocation = TaskBarLocation.BOTTOM;
-            bool taskBarOnTopOrBottom = (Screen.PrimaryScreen.WorkingArea.Width == Screen.PrimaryScreen.Bounds.Width);
-            if (taskBarOnTopOrBottom)
-            {
-                if (Screen.PrimaryScreen.WorkingArea.Top > 0)
-                    taskBarLocation = TaskBarLocation.TOP;
-                else
-                    taskBarLocation = TaskBarLocation.BOTTOM;
-            }
-            else
-            {
-                if (Screen.PrimaryScreen.WorkingArea.Left > 0)
-                {
-                    taskBarLocation = TaskBarLocation.LEFT;
-                }
-                else
-                {
-                    taskBarLocation = TaskBarLocation.RIGHT;
-                }
-            }
-            return taskBarLocation;
-        }
+        //public static TaskBarLocation GetTaskBarLocation()
+        //{
+        //    TaskBarLocation taskBarLocation = TaskBarLocation.BOTTOM;
+        //    bool taskBarOnTopOrBottom = (Screen.PrimaryScreen.WorkingArea.Width == Screen.PrimaryScreen.Bounds.Width);
+        //    if (taskBarOnTopOrBottom)
+        //    {
+        //        if (Screen.PrimaryScreen.WorkingArea.Top > 0)
+        //            taskBarLocation = TaskBarLocation.TOP;
+        //        else
+        //            taskBarLocation = TaskBarLocation.BOTTOM;
+        //    }
+        //    else
+        //    {
+        //        if (Screen.PrimaryScreen.WorkingArea.Left > 0)
+        //        {
+        //            taskBarLocation = TaskBarLocation.LEFT;
+        //        }
+        //        else
+        //        {
+        //            taskBarLocation = TaskBarLocation.RIGHT;
+        //        }
+        //    }
+        //    return taskBarLocation;
+        //}
 
         /// <summary>
         /// doesnt work well with autohide
         /// considers  RTL , PrimaryScreen ,
         /// </summary>
         /// <returns></returns>
-        public static Point calc_FormLoc_NearToTaskbarDate(Size formSize)
-        {
-            Point pvis = new Point(0, 0);
-            Rectangle scrWA = GetScreen_WorkingArea();
+        //public static Point calc_FormLoc_NearToTaskbarDate(Size formSize)
+        //{
+        //    Point pvis = new Point(0, 0);
+        //    Rectangle scrWA = GetScreen_WorkingArea();
 
-            var taskbarloc = GetTaskBarLocation();
+        //    var taskbarloc = GetTaskBarLocation();
 
-            //tr eng: false
-            //arabic: true
-            var rtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
-            //rtl = true;//testitngggg
-            if (!rtl)
-            {
-                if (taskbarloc == TaskBarLocation.TOP)
-                    pvis = new Point(scrWA.Width - formSize.Width, scrWA.Top);
-                else if (taskbarloc == TaskBarLocation.LEFT)
-                    pvis = new Point(scrWA.Left, scrWA.Height - formSize.Height);
-                else if (taskbarloc == TaskBarLocation.BOTTOM)
-                    pvis = new Point(scrWA.Width - formSize.Width, scrWA.Height - formSize.Height);
-                else if (taskbarloc == TaskBarLocation.RIGHT)
-                    pvis = new Point(scrWA.Width - formSize.Width, scrWA.Height - formSize.Height);
+        //    //tr eng: false
+        //    //arabic: true
+        //    var rtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+        //    //rtl = true;//testitngggg
+        //    if (!rtl)
+        //    {
+        //        if (taskbarloc == TaskBarLocation.TOP)
+        //            pvis = new Point(scrWA.Width - formSize.Width, scrWA.Top);
+        //        else if (taskbarloc == TaskBarLocation.LEFT)
+        //            pvis = new Point(scrWA.Left, scrWA.Height - formSize.Height);
+        //        else if (taskbarloc == TaskBarLocation.BOTTOM)
+        //            pvis = new Point(scrWA.Width - formSize.Width, scrWA.Height - formSize.Height);
+        //        else if (taskbarloc == TaskBarLocation.RIGHT)
+        //            pvis = new Point(scrWA.Width - formSize.Width, scrWA.Height - formSize.Height);
 
-            }
-            else
-            {
-                if (taskbarloc == TaskBarLocation.TOP)
-                    pvis = new Point(0, scrWA.Top);
-                else if (taskbarloc == TaskBarLocation.LEFT)
-                    pvis = new Point(scrWA.Left, 0);
-                else if (taskbarloc == TaskBarLocation.BOTTOM)
-                    pvis = new Point(0, scrWA.Height - formSize.Height);
-                else if (taskbarloc == TaskBarLocation.RIGHT)
-                    pvis = new Point(scrWA.Right - formSize.Width, scrWA.Top);
-            }
+        //    }
+        //    else
+        //    {
+        //        if (taskbarloc == TaskBarLocation.TOP)
+        //            pvis = new Point(0, scrWA.Top);
+        //        else if (taskbarloc == TaskBarLocation.LEFT)
+        //            pvis = new Point(scrWA.Left, 0);
+        //        else if (taskbarloc == TaskBarLocation.BOTTOM)
+        //            pvis = new Point(0, scrWA.Height - formSize.Height);
+        //        else if (taskbarloc == TaskBarLocation.RIGHT)
+        //            pvis = new Point(scrWA.Right - formSize.Width, scrWA.Top);
+        //    }
 
-            return pvis;
-        }
+        //    return pvis;
+        //}
 
-        public static Rectangle offset_FormLoc_for_RoundCorners( Rectangle formRect, bool is_RoundCorners )
-        {
-            if (!is_RoundCorners)
-                return formRect;
+        //public static Rectangle offset_FormLoc_for_RoundCorners( Rectangle formRect, bool is_RoundCorners )
+        //{
+        //    if (!is_RoundCorners)
+        //        return formRect;
 
-            var taskbarloc = GetTaskBarLocation();
-            var scrWA = GetScreen_WorkingArea();
+        //    var taskbarloc = GetTaskBarLocation();
+        //    var scrWA = GetScreen_WorkingArea();
 
-            var padSize = 16;
-            var inflateVal= (int) -padSize / 2;
+        //    var padSize = 16;
+        //    var inflateVal= (int) -padSize / 2;
 
-            scrWA.Inflate(inflateVal, inflateVal);
-            //var formRect = new Rectangle(pMouseLoc, formSize);
-            var clampedRect = formRect.Clamp(scrWA);
+        //    scrWA.Inflate(inflateVal, inflateVal);
+        //    //var formRect = new Rectangle(pMouseLoc, formSize);
+        //    var clampedRect = formRect.Clamp(scrWA);
            
-            return clampedRect;
-        }
+        //    return clampedRect;
+        //}
+        //public static Rectangle offset_FormLoc_for_RoundCorners_CalculateAutoHide(Rectangle formRect, bool is_RoundCorners)
+        //{
+        //    if (!is_RoundCorners)
+        //        return formRect;
 
-        public static Rectangle offset_FormLoc_for_RoundCorners_CalculateAutoHide(Rectangle formRect, bool is_RoundCorners)
-        {
-            if (!is_RoundCorners)
-                return formRect;
+        //    var taskbarloc = GetTaskBarLocation();
+        //    var scrWA = GetScreen_WA_CalculateAutoHide();
 
-            var taskbarloc = GetTaskBarLocation();
-            var scrWA = GetScreen_WA_CalculateAutoHide();
+        //    var padSize = 16;
+        //    var inflateVal = (int)-padSize / 2;
 
-            var padSize = 16;
-            var inflateVal = (int)-padSize / 2;
+        //    scrWA.Inflate(inflateVal, inflateVal);
+        //    //var formRect = new Rectangle(pMouseLoc, formSize);
+        //    var clampedRect = formRect.Clamp(scrWA);
 
-            scrWA.Inflate(inflateVal, inflateVal);
-            //var formRect = new Rectangle(pMouseLoc, formSize);
-            var clampedRect = formRect.Clamp(scrWA);
-
-            return clampedRect;
-        }
+        //    return clampedRect;
+        //}
 
 
         /// <summary>
