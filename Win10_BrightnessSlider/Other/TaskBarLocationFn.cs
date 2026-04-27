@@ -62,6 +62,9 @@ namespace Win10_BrightnessSlider
 			return new Point(x, y);
 		}
 
+
+
+
 		//--------old---------------
 
 
