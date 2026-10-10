@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Drawing.Printing;
 using System.Globalization;
 using System.Linq;
@@ -42,6 +42,8 @@ namespace Win10_BrightnessSlider
         public CustomTheme customTheme { get; set; } = new CustomTheme();
 
         public List<MonitorNames> monitorNames { get; set; }
+
+        public bool Hotkey_Brightness_Enabled { get; set; } = true;
     }
 
     public class MonitorNames

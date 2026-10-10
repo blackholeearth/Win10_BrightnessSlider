@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -75,8 +75,11 @@ namespace Win10_BrightnessSlider
 		*/
 		static string version = "1.8.31";
 
+		public static Form1 Instance { get; private set; }
+
 		public Form1()
         {
+            Instance = this;
             InitializeComponent();
             DoubleBuffered = true;
 
@@ -334,6 +337,8 @@ namespace Win10_BrightnessSlider
             //theme changed
             SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
             SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+
+            BrightnessHotkeyManager.Initialize(this.Handle);
         }
 
 
@@ -504,7 +509,88 @@ namespace Win10_BrightnessSlider
             });
         }
 
+        private const int WM_HOTKEY = 0x0312;
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_HOTKEY)
+            {
+                int id = m.WParam.ToInt32();
+                int step = (id == BrightnessHotkeyManager.HOTKEY_UP) ? 5 : -5;
+                AdjustBrightnessByStep(step);
+            }
+            base.WndProc(ref m);
+        }
 
+        private readonly object _hotkeyLock = new object();
+        private bool _isApplyingHotkey = false;
+        private readonly Dictionary<RichInfoScreen, int> _cachedHotkeyBrightness = new Dictionary<RichInfoScreen, int>();
+
+        public void AdjustBrightnessByStep(int delta)
+        {
+            if (riScreens == null || riScreens.Count == 0) return;
+
+            lock (_hotkeyLock)
+            {
+                foreach (var scr in riScreens)
+                {
+                    if (scr == null) continue;
+                    if (!_cachedHotkeyBrightness.TryGetValue(scr, out int val) || val < 0)
+                    {
+                        val = scr.GetBrightness();
+                        if (val < 0) val = 50;
+                    }
+                    _cachedHotkeyBrightness[scr] = (int)MathFn.Clamp(val + delta, 0, 100);
+                }
+
+                if (Visible) GUI_Update__StatesOnControls();
+                else
+                {
+                    var first = riScreens.FirstOrDefault();
+                    if (first != null && _cachedHotkeyBrightness.TryGetValue(first, out int b))
+                    {
+                        try { notifyIcon_bright.Text = $"Brightness: {b}%"; } catch { }
+                    }
+                }
+
+                if (_isApplyingHotkey) return;
+                _isApplyingHotkey = true;
+            }
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    List<KeyValuePair<RichInfoScreen, int>> targets;
+                    lock (_hotkeyLock)
+                    {
+                        targets = _cachedHotkeyBrightness.ToList();
+                    }
+
+                    foreach (var kvp in targets)
+                    {
+                        try { kvp.Key.SetBrightness(kvp.Value, false); } catch { }
+                    }
+
+                    lock (_hotkeyLock)
+                    {
+                        bool hasMore = false;
+                        foreach (var kvp in targets)
+                        {
+                            if (_cachedHotkeyBrightness.TryGetValue(kvp.Key, out int latest) && latest != kvp.Value)
+                            {
+                                hasMore = true;
+                                break;
+                            }
+                        }
+                        if (!hasMore)
+                        {
+                            _isApplyingHotkey = false;
+                            break;
+                        }
+                    }
+                }
+            });
+        }
 
         /// <summary>
         /// persist between event suspend resume monitor on off
@@ -1239,7 +1325,7 @@ namespace Win10_BrightnessSlider
 
             var cms = new ContextMenuStrip_win11();
 
-            var mi0_exit = new ToolStripMenuItem("Exit", null, (snd, ev) => { Application.Exit(); });
+            var mi0_exit = new ToolStripMenuItem("Exit", null, (snd, ev) => { BrightnessHotkeyManager.Unregister(); Application.Exit(); });
             var mi0_restart = new ToolStripMenuItem("Restart", null, (snd, ev) => { Application.Restart(); });
 
             var mi1_aboutMe = new ToolStripMenuItem($"About Me - (v{version})", null, (snd, ev) =>
@@ -1456,6 +1542,19 @@ https://github.com/blackholeearth/Win10_BrightnessSlider
                 mi_extras.DropDown.Items.Add(new ToolStripMenuItem("___ReMap Keys___") { Enabled = false });
                 mi_extras.DropDown.Items.Add(mi_remapKey1);
                 mi_extras.DropDown.Items.Add(mi_hotkey_everything);
+
+                var mi_hotkeys = new ToolStripMenuItem("Global Hotkeys (Ctrl+Alt+Up/Down)")
+                {
+                    CheckOnClick = true,
+                    Checked = settingsX.Hotkey_Brightness_Enabled
+                };
+                mi_hotkeys.Click += (s, e) =>
+                {
+                    Settings_json.Update(x => x.Hotkey_Brightness_Enabled = mi_hotkeys.Checked);
+                    if (mi_hotkeys.Checked) BrightnessHotkeyManager.Register();
+                    else BrightnessHotkeyManager.Unregister();
+                };
+                mi_extras.DropDown.Items.Add(mi_hotkeys);
                 //mi_extras.DropDown.Items.Add("-");
             }
             cms.Items.Add(mi_wifiToggle);

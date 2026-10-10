@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<UseWindowsForms>true</UseWindowsForms>
@@ -12,6 +12,7 @@
 		<AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
 	    <AppendRuntimeIdentifierToOutputPath>true</AppendRuntimeIdentifierToOutputPath>
 	    <ApplicationIcon>brightness.ico</ApplicationIcon>
+	    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -81,7 +82,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Costura.Fody" Version="4.0.0" />
+	  <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="all" />
+	  <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
 	  <PackageReference Include="LiteDB" Version="5.0.21" />
 	  <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 	  <PackageReference Include="MouseKeyHook" Version="5.7.1" />
